@@ -7,7 +7,7 @@ task :run do
 end
 
 desc 'Generate session secret key'
-task :generate_session_secret do
+file 'session.secret' do
   File.open('session.secret', 'w') do |f|
     f << SecureRandom.base64(64)
   end
