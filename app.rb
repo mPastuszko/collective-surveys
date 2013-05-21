@@ -17,3 +17,7 @@ end
 configure :test do
   disable :logging
 end
+
+get '/designer' do
+  slim :designer_index, :layout => :layout_designer
+end
