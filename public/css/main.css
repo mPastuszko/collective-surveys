@@ -1,0 +1,35 @@
+/*!
+ * Copyright 2013 Mikołaj Pastuszko (mikolaj.pastuszko@gmail.com)
+ * Licensed under the Apache License v2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
+ */
+
+body {
+  padding-top: 20px;
+  padding-bottom: 40px;
+  position: relative;
+}
+
+footer {
+  text-align: center;
+  padding: 0.2em 0 0 0;
+  
+  border-top: 1px solid #fff;
+  box-shadow: 0 -1px 0 #ccc;
+
+  font-size: small;
+  background-color: white;
+}
+
+footer span {
+  margin: 0 1em;
+}
+
+.loader {
+  text-align: center;
+  padding: 3em;
+}
+
+.loader img {
+  margin: 3em;
+}
