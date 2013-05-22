@@ -1,0 +1,31 @@
+- @module = :synonyms
+h1.well Synonimy
+#designer-accordion.accordion
+  .accordion-group
+    .accordion-heading
+      h2: a.accordion-toggle[
+        data-toggle='collapse'
+        data-parent='#designer-accordion'
+        href='#designer-plan-pane']
+        ' ① Zaprojektuj
+    #designer-plan-pane.accordion-body.collapse
+      .accordion-inner
+        p Jakiś formularz...
+    .accordion-heading
+      h2: a.accordion-toggle[
+        data-toggle='collapse'
+        data-parent='#designer-accordion'
+        href='#designer-publish-pane']
+        ' ② Opublikuj
+    #designer-publish-pane.accordion-body.collapse
+      .accordion-inner
+        p Jakiś formularz...
+    .accordion-heading
+      h2: a.accordion-toggle[
+        data-toggle='collapse'
+        data-parent='#designer-accordion'
+        href='#designer-results-pane']
+        ' ③ Zobacz wyniki
+    #designer-results-pane.accordion-body.collapse
+      .accordion-inner
+        p Jakiś formularz...
