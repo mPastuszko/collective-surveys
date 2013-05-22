@@ -26,6 +26,23 @@ h1.well Homofony
           fieldset.text-center
             button.btn.btn-primary.btn-large type='submit' Zapisz
       #publish-pane.tab-pane
-        p Jakiś formularz...
+        .alert.alert-info
+          strong Jak to działa?
+          '  Każdy ankieter otrzymuje osobisty link, który rozsyła uczestnikom badania. Dzięki temu zebrane później wyniki można przypisać do konkretnego ankietera.
+        - if @survey_link
+          form.form-inline
+            legend: h3
+              ' Twój osobisty link do ankiety
+            label Skopiuj poniższy link i wyślij go uczestnikom badania
+            fieldset
+              input.span8 type='text' value=@survey_link
+        - else
+          form.form-inline
+            legend: h3
+              ' Wygeneruj osobisty link do ankiety
+            fieldset.text-center
+              input.input-xlarge type='text' placeholder='Wpisz swoje imię i nazwisko'
+              ' 
+              button.btn.btn-primary type='submit' Wygeneruj link
       #results-pane.tab-pane
         p Jakiś formularz...
