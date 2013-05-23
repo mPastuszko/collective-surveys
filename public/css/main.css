@@ -63,3 +63,15 @@ footer span {
     *display:inline; /* ie7 fix */
      zoom:1; /* hasLayout ie7 trigger */
 }
+
+.vspace2 {
+  height: 2em;
+}
+
+.vspace3 {
+  height: 3em;
+}
+
+.vspace4 {
+  height: 4em;
+}

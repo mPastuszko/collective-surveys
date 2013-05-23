@@ -33,3 +33,14 @@ end
 get %r{/designer/(synonyms|homophones|figures)} do |m|
   slim "designer_#{m}".to_sym, :layout => :layout_designer
 end
+
+get '/survey' do
+  page = case params[:page].to_i
+    when 1
+      :survey_questions
+    else
+      :survey_welcome
+    end
+  slim page, :layout => :layout_survey
+end
+
