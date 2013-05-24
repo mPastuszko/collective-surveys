@@ -1,0 +1,23 @@
+.hero-unit
+  h2 Krok #{params[:page]} z 3
+  p
+    ' To już prawie koniec ankiety. Na zakończenie prosimy Cię o podanie kilku ogólnych informacji o Tobie.
+  .vspace2
+  form.questions.form-horizontal method='post'
+    fieldset.control-group
+      label.control-label: strong Płeć:
+      .controls
+        label.radio
+          input.answer type='radio' name='gender' value='female'
+          '  Kobieta
+        label.radio
+          input.answer type='radio' name='gender' value='male'
+          '  Mężczyzna
+      .vspace1
+      label.control-label: strong Wiek:
+      .controls
+        input.answer type='text' name='age' placeholder='Wpisz swój wiek...'
+
+    .vspace2
+    .text-center
+      button.continue.btn.btn-primary.btn-large type='submit' disabled=true Zakończ

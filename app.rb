@@ -37,7 +37,13 @@ end
 get '/survey' do
   page = case params[:page].to_i
     when 1
-      :survey_questions
+      :survey_questions_homophones
+    when 2
+      :survey_demographic_info
+    when 3
+      :survey_thanks
+    when 4
+      :survey_already_participated
     else
       :survey_welcome
     end

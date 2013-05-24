@@ -64,6 +64,9 @@ footer span {
      zoom:1; /* hasLayout ie7 trigger */
 }
 
+.vspace1 {
+  height: 1em;
+}
 .vspace2 {
   height: 2em;
 }
