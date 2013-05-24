@@ -22,6 +22,10 @@ configure :test do
   disable :logging
 end
 
+def db
+ settings.db
+end
+
 get '/' do
   redirect to('/designer')
 end
@@ -31,7 +35,13 @@ get '/designer' do
 end
 
 get %r{/designer/(synonyms|homophones|figures)} do |m|
+  @base_words = db.get "#{m}:base_words"
   slim "designer_#{m}".to_sym, :layout => :layout_designer
+end
+
+post %r{/designer/(synonyms|homophones)/plan} do |m|
+  db.set "#{m}:base_words", params[:base_words]
+  redirect to("/designer/#{m}#plan")
 end
 
 get '/survey' do
