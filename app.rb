@@ -48,11 +48,13 @@ end
 post %r{/designer/(synonyms|homophones)/publish} do |m|
   saved = false
   until saved
-    survey_id = SecureRandom.hex
-    saved = db.setnx "#{m}:surveys:#{survey_id}:surveyer_name", params[:surveyer_name]
+    survey_id = SecureRandom.urlsafe_base64
+    saved = db.setnx "survey:#{survey_id}:surveyer_name", params[:surveyer_name]
   end
   base_words = db.get "#{m}:base_words"
-  db.set "#{m}:surveys:#{survey_id}:base_words", base_words
+  db.set "survey:#{survey_id}:base_words", base_words
+  db.set "survey:#{survey_id}:module", m
+  db.sadd "#{m}:surveys", survey_id
   session[m] ||= {}
   session[m][:survey_link] = url("/survey/#{survey_id}")
   redirect to("/designer/#{m}#publish")
