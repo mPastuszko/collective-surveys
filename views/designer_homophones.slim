@@ -49,11 +49,11 @@ h1.well Homofony
             fieldset
               input.span8 type='text' value=@survey_link
         - else
-          form.form-inline
+          form.form-inline method='post' action='/designer/homophones/publish'
             legend: h3
               ' Wygeneruj osobisty link do ankiety
             fieldset.text-center
-              input.input-xlarge type='text' placeholder='Wpisz swoje imię i nazwisko'
+              input.input-xlarge type='text' name='surveyer_name' placeholder='Wpisz swoje imię i nazwisko'
               ' 
               button.btn.btn-primary type='submit' Wygeneruj link
       #results-pane.tab-pane

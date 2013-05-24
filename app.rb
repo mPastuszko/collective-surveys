@@ -36,12 +36,24 @@ end
 
 get %r{/designer/(synonyms|homophones|figures)} do |m|
   @base_words = db.get "#{m}:base_words"
+  @survey_link = session[m] && session[m][:survey_link]
   slim "designer_#{m}".to_sym, :layout => :layout_designer
 end
 
 post %r{/designer/(synonyms|homophones)/plan} do |m|
   db.set "#{m}:base_words", params[:base_words]
   redirect to("/designer/#{m}#plan")
+end
+
+post %r{/designer/(synonyms|homophones|figures)/publish} do |m|
+  saved = false
+  until saved
+    survey_id = SecureRandom.hex
+    saved = db.setnx "#{m}:surveys:#{survey_id}:surveyer_name", params[:surveyer_name]
+  end
+  session[m] ||= {}
+  session[m][:survey_link] = url("/survey/#{survey_id}")
+  redirect to("/designer/#{m}#publish")
 end
 
 get '/survey' do
