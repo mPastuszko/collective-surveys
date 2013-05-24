@@ -47,7 +47,14 @@ h1.well Synonimy
               ' Twój osobisty link do ankiety
             label Skopiuj poniższy link i wyślij go uczestnikom badania
             fieldset
-              input.span8 type='text' value=@survey_link
+              input.span8 type='text' name='survey_link' value=@survey_link readonly=true
+            javascript:
+              $(function() {
+                var selectSurveyLink = function() {
+                    $(this).select();
+                  }
+                $('input[name="survey_link"]').click(selectSurveyLink).trigger('click');
+              });
         - else
           form.form-inline method='post' action='/designer/synonyms/publish'
             legend: h3
