@@ -26,6 +26,17 @@ h1.well Homofony
               = @base_words
           fieldset.text-center
             button.btn.btn-primary.btn-large type='submit' Zapisz
+          javascript:
+            $(function() {
+              var updateSaveButtonLabel = function() {
+                  var lines = $(this).val().split("\n");
+                  var lines_num = lines.length;
+                  if(lines[lines.length-1] === '')
+                    lines_num -= 1;
+                  $(this).parents('form').find('button[type="submit"]').text('Zapisz (' + lines_num + ' słów)')
+                }
+              $('textarea[name="base_words"]').keyup(updateSaveButtonLabel).trigger('keyup');
+            });
       #publish-pane.tab-pane
         .alert.alert-info
           strong Jak to działa?
