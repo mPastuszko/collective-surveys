@@ -3,6 +3,7 @@
 require 'sinatra'
 require 'slim'
 require 'json'
+require 'yaml'
 require 'securerandom'
 require 'redis'
 
