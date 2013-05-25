@@ -56,13 +56,15 @@ h1.well Synonimy
                 $('input[name="survey_link"]').click(selectSurveyLink).trigger('click');
               });
         - else
-          form.form-inline method='post' action='/designer/synonyms/publish'
+          form.form-inline
+            / method='post' action='/designer/synonyms/publish'
             legend: h3
               ' Wygeneruj osobisty link do ankiety
             fieldset.text-center
-              input.input-xlarge type='text' name='surveyer_name' placeholder='Wpisz swoje imię i nazwisko'
-              ' 
-              button.btn.btn-primary type='submit' Wygeneruj link
+              .alert.alert-warning W budowie...
+              / input.input-xlarge type='text' name='surveyer_name' placeholder='Wpisz swoje imię i nazwisko'
+              / ' 
+              / button.btn.btn-primary type='submit' Wygeneruj link
       #results-pane.tab-pane
         h3
           ' Ogółem: 123 ankiety
