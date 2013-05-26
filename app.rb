@@ -77,3 +77,6 @@ get '/survey' do
   slim page, :layout => :layout_survey
 end
 
+not_found do
+  slim :not_found, :layout => :layout_survey
+end
