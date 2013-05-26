@@ -7,6 +7,8 @@ require 'yaml'
 require 'securerandom'
 require 'redis'
 
+require_relative 'lib/survey_answer.rb'
+
 configure do
   enable :sessions
   raise 'Session secret key not fond. Run `rake session.secret` to generate one.' \
@@ -61,20 +63,20 @@ post %r{/designer/(synonyms|homophones)/publish} do |m|
   redirect to("/designer/#{m}#publish")
 end
 
-get '/survey' do
-  page = case params[:page].to_i
-    when 1
-      :survey_questions_homophones
-    when 2
-      :survey_demographic_info
-    when 3
-      :survey_thanks
-    when 4
-      :survey_already_participated
-    else
-      :survey_welcome
-    end
-  slim page, :layout => :layout_survey
+get '/survey/:id' do |survey_id|
+  not_found unless db.exists("survey:#{survey_id}:surveyer_name")
+  session[:survey] ||= {}
+  answer_id = session[:survey][survey_id]
+  answer = SurveyAnswer.new(db, survey_id, answer_id)
+  session[:survey][survey_id] = answer.id
+  slim "survey_#{answer.state}".to_sym, :layout => :layout_survey
+end
+
+post '/survey/:id' do |survey_id|
+  answer_id = session[:survey][survey_id]
+  answer = SurveyAnswer.new(db, survey_id, answer_id)
+  answer.update(params)
+  redirect to("/survey/#{survey_id}")
 end
 
 not_found do
