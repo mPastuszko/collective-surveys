@@ -17,6 +17,10 @@ class SurveyAnswer
   end
 
   def update(data)
+    @db.set "answer:#{@answer_id}:answer", data[:answer].to_json if data[:answer]
+    @db.set "answer:#{@answer_id}:gender", data[:gender] if data[:gender]
+    @db.set "answer:#{@answer_id}:age", data[:age] if data[:age]
+
     @db.set "answer:#{@answer_id}:state", new_state(state)
   end
 
