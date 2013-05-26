@@ -6,6 +6,7 @@ require 'json'
 require 'yaml'
 require 'securerandom'
 require 'redis'
+require 'digest/sha1'
 
 require_relative 'lib/survey_answer.rb'
 
@@ -14,6 +15,7 @@ configure do
   raise 'Session secret key not fond. Run `rake session.secret` to generate one.' \
     unless File.exists?('session.secret')
   set :session_secret, File.read('session.secret')
+  set :password_hash, File.read('password.secret')
   set :db, Redis.new(YAML.load_file('db.yml'))
 end
 
@@ -31,6 +33,16 @@ end
 
 get '/' do
   redirect to('/designer')
+end
+
+post '/authenticate' do
+  password_valid = (Digest::SHA1.hexdigest(params[:password]) == settings.password_hash)
+  session[:authenticated] = true if password_valid
+  redirect to('/designer')
+end
+
+before '/designer*' do
+  halt slim(:designer_authenticate, :layout => :layout_survey) unless session[:authenticated]
 end
 
 get '/designer' do
