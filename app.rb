@@ -54,9 +54,16 @@ post %r{/designer/(synonyms|homophones)/publish} do |m|
     survey_id = SecureRandom.urlsafe_base64
     saved = db.setnx "survey:#{survey_id}:surveyer_name", params[:surveyer_name]
   end
-  base_words = db.get "#{m}:base_words"
-  db.set "survey:#{survey_id}:base_words", base_words
   db.set "survey:#{survey_id}:kind", m
+  case m
+  when 'synonyms', 'homophones'
+    base_words = db.get("#{m}:base_words") \
+      .lines \
+      .to_a \
+      .map(&:chomp) \
+      .reject{ |e| e == '' }
+    db.set "survey:#{survey_id}:base_words", base_words.to_json
+  end
   db.sadd "#{m}:surveys", survey_id
   session[m] ||= {}
   session[m][:survey_link] = url("/survey/#{survey_id}")
@@ -89,7 +96,7 @@ def survey_data(survey_id)
   kind = db.get "survey:#{survey_id}:kind"
   case kind
   when 'synonyms', 'homophones'
-    data[:base_words] = db.get("survey:#{survey_id}:base_words").split(/#{$/}+/)
+    data[:base_words] = JSON.load(db.get("survey:#{survey_id}:base_words"))
   end
   data
 end
