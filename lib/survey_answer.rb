@@ -41,9 +41,7 @@ class SurveyAnswer
     when /questions/
       'demographic_info'
     when 'demographic_info'
-      'thanks'
-    when 'thanks'
-      'already_participated'
+      'finished'
     else
       'welcome'
     end
