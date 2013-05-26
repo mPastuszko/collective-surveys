@@ -56,7 +56,7 @@ post %r{/designer/(synonyms|homophones)/publish} do |m|
   end
   base_words = db.get "#{m}:base_words"
   db.set "survey:#{survey_id}:base_words", base_words
-  db.set "survey:#{survey_id}:module", m
+  db.set "survey:#{survey_id}:kind", m
   db.sadd "#{m}:surveys", survey_id
   session[m] ||= {}
   session[m][:survey_link] = url("/survey/#{survey_id}")
@@ -68,6 +68,7 @@ get '/survey/:id' do |survey_id|
   session[:survey] ||= {}
   answer_id = session[:survey][survey_id]
   answer = SurveyAnswer.new(db, survey_id, answer_id)
+  @data = survey_data(survey_id)
   session[:survey][survey_id] = answer.id
   slim "survey_#{answer.state}".to_sym, :layout => :layout_survey
 end
@@ -81,4 +82,14 @@ end
 
 not_found do
   slim :not_found, :layout => :layout_survey
+end
+
+def survey_data(survey_id)
+  data = {}
+  kind = db.get "survey:#{survey_id}:kind"
+  case kind
+  when 'synonyms', 'homophones'
+    data[:base_words] = db.get("survey:#{survey_id}:base_words").split(/#{$/}+/)
+  end
+  data
 end

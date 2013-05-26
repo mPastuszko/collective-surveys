@@ -13,7 +13,7 @@ class SurveyAnswer
   end
 
   def kind
-    @db.get "survey:#{@survey_id}:module"
+    @db.get "survey:#{@survey_id}:kind"
   end
 
   def update(data)

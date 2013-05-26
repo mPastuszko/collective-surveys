@@ -1,5 +1,5 @@
 .hero-unit
-  h2 Krok #{params[:page]} z 3
+  h2 Krok 1 z 2
   p
     ' Poniżej znajduje się lista słów. Przy każdym słowie napisz słowo lub słowa, których
     strong brzmienie 
@@ -9,10 +9,11 @@
     em kres, bies, pius, cześć.
   .vspace2
   form.questions.form-horizontal method='post'
-    fieldset.control-group
-      label.control-label: strong TODO:
-      .controls
-        input.answer type='text' name='answer[]' placeholder='Wpisz słowo lub słowa...'
+    - @data[:base_words].each do |word|
+      fieldset.control-group
+        label.control-label: strong= word.strip + ':'
+        .controls
+          input.answer type='text' name='answer[]' placeholder='Wpisz słowo lub słowa...'
     .vspace2
     .text-center
       button.continue.btn.btn-primary.btn-large type='submit' disabled=true Dalej
