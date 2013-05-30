@@ -1,4 +1,93 @@
 - @module = :figures
 h1.well Figury
-.alert
-  h2 W budowie...
+.tabbable
+  ul.nav.nav-tabs.nav-tabs-center
+    li: a data-toggle='tab' href='#plan-pane'
+      h2 ① Zaprojektuj
+    li: h2 ⇢
+    li: a data-toggle='tab' href='#publish-pane'
+      h2 ② Opublikuj
+    li: h2 ⇢
+    li: a data-toggle='tab' href='#results-pane'
+      h2 ③ Zobacz wyniki
+  .row
+    .span1
+    .span10.tab-content
+      #plan-pane.tab-pane
+        .alert.alert-info
+          strong Jak to działa?
+          '  Poniższa lista zawiera zestawy figur (jedna bazowa i kilka podobnych). Każdy z nich zostanie przedstawiony uczestnikowi badania. Jego zadaniem będzie określenie na skali 1–5 podobieństwa figur z zestawu do figury bazowej.
+        form.form-inline method='post' action='/designer/figures/plan' enctype='multipart/form-data'
+          legend: h3 Dodaj zestaw
+          fieldset.text-center.alert.alert-block
+            label Wybierz pliki z figurami:
+            ' 
+            input type='file' name='figures' multiple=true accept='image/png'
+            button.btn.btn-primary.btn-large type='submit' Dodaj zestaw
+        legend: h3
+          ' Zestawy figur
+          small Figura bazowa znajduje się na pierwszym miejscu każdego zestawu.
+        - [{id: 1}, {id: 2}, {id: 3}].each do |figure_set|
+          - @figure_num = (@figure_num || 0) + 1
+          form.form-inline method='delete' action="/designer/figures/plan/#{figure_set[:id]}"
+            label: h3 #{@figure_num}.
+            ' 
+            img.figure.img-rounded.img-polaroid
+            - rand(6..10).times do
+              img.figure.img-rounded
+            ' 
+            button.btn.btn-danger type='submit' Usuń zestaw
+      #publish-pane.tab-pane
+        .alert.alert-info
+          strong Jak to działa?
+          '  Każdy ankieter otrzymuje osobisty link, który rozsyła uczestnikom badania. Dzięki temu zebrane później wyniki można przypisać do konkretnego ankietera.
+        - if @survey_link
+          form.form-inline
+            legend: h3
+              ' Twój osobisty link do ankiety
+            label Skopiuj poniższy link i wyślij go uczestnikom badania
+            fieldset
+              input.span8 type='text' name='survey_link' value=@survey_link readonly=true
+            javascript:
+              $(function() {
+                var selectSurveyLink = function() {
+                    $(this).select();
+                  }
+                $('input[name="survey_link"]').click(selectSurveyLink).trigger('click');
+              });
+        - else
+          form.form-inline method='post' action='/designer/figures/publish'
+            legend: h3
+              ' Wygeneruj osobisty link do ankiety
+            fieldset.text-center
+              input.input-xlarge type='text' name='surveyer_name' placeholder='Wpisz swoje imię i nazwisko'
+              ' 
+              button.btn.btn-primary type='submit' Wygeneruj link
+      #results-pane.tab-pane
+        h3
+          ' Ogółem: 123 ankiety
+          .btn-group.pull-right
+            a.btn href='#'
+              i.icon-download-alt
+              '  Pobierz
+            a.btn href='#'
+              i.icon-fire
+              '  Resetuj
+        h3
+          ' Jan Kowalski: 99 ankiety
+          .btn-group.pull-right
+            a.btn href='#'
+              i.icon-download-alt
+              '  Pobierz
+            a.btn href='#'
+              i.icon-fire
+              '  Resetuj
+        h3
+          ' Jan Nowak: 24 ankiety
+          .btn-group.pull-right
+            a.btn href='#'
+              i.icon-download-alt
+              '  Pobierz
+            a.btn href='#'
+              i.icon-fire
+              '  Resetuj

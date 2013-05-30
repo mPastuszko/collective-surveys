@@ -78,3 +78,9 @@ footer span {
 .vspace4 {
   height: 4em;
 }
+
+img.figure {
+  margin: auto 0.3em;
+  width: 64px;
+  height: 64px;
+}
