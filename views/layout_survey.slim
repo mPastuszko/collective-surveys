@@ -38,7 +38,8 @@ html.no-js
         span: a href='http://twitter.github.com/bootstrap/index.html' Twitter Bootstrap
         span: a href='http://www.sinatrarb.com/' Sinatra
     /! /container
-    script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"
+    - if settings.production?
+      script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"
     javascript:
       window.jQuery || document.write('<script src="/js/vendor/jquery-1.9.1.min.js"><\/script>')
     script src="/js/vendor/bootstrap.min.js"
