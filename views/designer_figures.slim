@@ -19,22 +19,30 @@ h1.well Figury
           '  Poniższa lista zawiera zestawy figur (jedna bazowa i kilka podobnych). Każdy z nich zostanie przedstawiony uczestnikowi badania. Jego zadaniem będzie określenie na skali 1–5 podobieństwa figur z zestawu do figury bazowej.
         form.form-inline method='post' action='/designer/figures/plan' enctype='multipart/form-data'
           legend: h3 Dodaj zestaw
-          fieldset.text-center.alert.alert-block
-            label Wybierz pliki z figurami:
-            ' 
-            input type='file' name='figures' multiple=true accept='image/png'
-            button.btn.btn-primary.btn-large type='submit' Dodaj zestaw
+          fieldset.alert.alert-block
+            .row
+              .span8.text-center
+                .figures-input
+                  label Figura bazowa:
+                  ' 
+                  input.input-mini type='file' name='base_figure' accept='image/png'
+                .figures-input
+                  label Pozostałe figury:
+                  ' 
+                  input type='file' name='other_figures[]' multiple=true accept='image/png'
+              .span1
+                button.btn.btn-primary.btn-large type='submit' Dodaj zestaw
         legend: h3
           ' Zestawy figur
           small Figura bazowa znajduje się na pierwszym miejscu każdego zestawu.
-        - [{id: 1}, {id: 2}, {id: 3}].each do |figure_set|
+        - @figure_sets.each do |figure_set|
           - @figure_num = (@figure_num || 0) + 1
           form.form-inline method='delete' action="/designer/figures/plan/#{figure_set[:id]}"
             label: h3 #{@figure_num}.
             ' 
-            img.figure.img-rounded.img-polaroid
-            - rand(6..10).times do
-              img.figure.img-rounded
+            img.figure.img-rounded.img-polaroid src=url(figure_set[:base_figure])
+            - figure_set[:other_figures].each do |figure|
+              img.figure.img-rounded src=url(figure)
             ' 
             button.btn.btn-danger type='submit' Usuń zestaw
       #publish-pane.tab-pane

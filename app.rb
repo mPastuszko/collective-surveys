@@ -17,6 +17,7 @@ configure do
   set :session_secret, File.read('session.secret')
   set :password_hash, File.read('password.secret')
   set :db, Redis.new(YAML.load_file('db.yml'))
+  set :figures_path, File.join('upload', 'figures')
 end
 
 configure :development do
@@ -50,14 +51,52 @@ get '/designer' do
 end
 
 get %r{/designer/(synonyms|homophones|figures)} do |m|
-  @base_words = db.get "#{m}:base_words"
+  case m
+  when 'synonyms', 'homophones'
+    @base_words = db.get "#{m}:base_words"
+  when 'figures'
+    @figure_sets = db.smembers("figures:figure_sets").sort.map do |id|
+      {
+        id: id,
+        base_figure: "/figure/#{id}/" + db.get("figures:figure_set:#{id}:base_figure"),
+        other_figures: db.smembers("figures:figure_set:#{id}:other_figures") \
+          .map { |figure| "/figure/#{id}/#{figure}" } \
+          .sort
+      }
+    end
+  end
   @survey_link = session[m] && session[m][:survey_link]
   slim "designer_#{m}".to_sym, :layout => :layout_designer
+end
+
+get '/figure/:id/:filename' do |id, filename|
+  send_file figure_path(id, filename)
 end
 
 post %r{/designer/(synonyms|homophones)/plan} do |m|
   db.set "#{m}:base_words", params[:base_words]
   redirect to("/designer/#{m}#plan")
+end
+
+post '/designer/figures/plan' do
+  return redirect to("/designer/figures#plan") unless params[:base_figure] and params[:other_figures].last
+  id = db.incr "figures:figure_set:id"
+  
+  figure_set_path = File.join(settings.figures_path, id.to_s)
+  FileUtils.mkdir_p(figure_set_path)
+  
+  File.open(figure_path(id, params[:base_figure][:filename]), 'w') do |file|
+    file.write(params[:base_figure][:tempfile].read)
+  end
+  db.set "figures:figure_set:#{id}:base_figure", params[:base_figure][:filename]
+  params[:other_figures].each do |figure|
+    File.open(figure_path(id, figure[:filename]), 'w') do |file|
+      file.write(figure[:tempfile].read)
+    end
+    db.sadd "figures:figure_set:#{id}:other_figures", figure[:filename]
+  end
+  db.sadd "figures:figure_sets", id
+  redirect to("/designer/figures#plan")
 end
 
 post %r{/designer/(synonyms|homophones)/publish} do |m|
@@ -111,4 +150,8 @@ def survey_data(survey_id)
     data[:base_words] = JSON.load(db.get("survey:#{survey_id}:base_words"))
   end
   data
+end
+
+def figure_path(set_id, filename)
+  File.join(settings.figures_path, set_id.to_s, filename)
 end
