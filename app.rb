@@ -99,6 +99,11 @@ post '/designer/figures/plan' do
   redirect to("/designer/figures#plan")
 end
 
+delete '/designer/figures/plan/:id' do |id|
+  db.srem "figures:figure_sets", id
+  redirect to("/designer/figures#plan")
+end
+
 post %r{/designer/(synonyms|homophones)/publish} do |m|
   saved = false
   until saved

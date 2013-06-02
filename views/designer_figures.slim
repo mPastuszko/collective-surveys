@@ -37,14 +37,16 @@ h1.well Figury
           small Figura bazowa znajduje się na pierwszym miejscu każdego zestawu.
         - @figure_sets.each do |figure_set|
           - @figure_num = (@figure_num || 0) + 1
-          form.form-inline method='delete' action="/designer/figures/plan/#{figure_set[:id]}"
+          form.form-inline method='post' action="/designer/figures/plan/#{figure_set[:id]}"
+            input type='hidden' name='_method' value='delete'
             label: h3 #{@figure_num}.
             ' 
             img.figure.img-rounded.img-polaroid src=url(figure_set[:base_figure])
             - figure_set[:other_figures].each do |figure|
               img.figure.img-rounded src=url(figure)
             ' 
-            button.btn.btn-danger type='submit' Usuń zestaw
+            .delete-figures.pull-right
+              button.btn.btn-danger type='submit' Usuń zestaw
       #publish-pane.tab-pane
         .alert.alert-info
           strong Jak to działa?

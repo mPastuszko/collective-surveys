@@ -84,3 +84,7 @@ img.figure {
   width: 64px;
   height: 64px;
 }
+
+.delete-figures {
+  line-height: 68px;
+}
