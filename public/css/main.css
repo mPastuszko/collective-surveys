@@ -79,12 +79,19 @@ footer span {
   height: 4em;
 }
 
-img.figure {
-  margin: auto 0.3em;
+.thumbnails-small > li > img {
   width: 64px;
   height: 64px;
 }
 
-.delete-figures {
-  line-height: 68px;
+.thumbnails-small > li {
+  margin: 0.4em;
+}
+
+.base-figure {
+  box-shadow: 0 0 0 2px #0070FF;
+}
+
+.delete-figure-set {
+  margin: 1em;
 }
