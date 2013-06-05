@@ -64,6 +64,7 @@ get %r{/designer/(synonyms|homophones|figures)} do |m|
   end
   session[m] ||= {}
   @survey_link = session[m][:survey_id] && url("/survey/#{session[m][:survey_id]}")
+  @results = results(m)
   slim "designer_#{m}".to_sym, :layout => :layout_designer
 end
 
@@ -87,12 +88,12 @@ post '/designer/figures/plan' do
     file.write(params[:base_figure][:tempfile].read)
   end
   db.set "figures:figure_set:#{id}:base_figure", params[:base_figure][:filename]
-  params[:other_figures].each do |figure|
+  params[:other_figures].each {|figure|
     File.open(figure_path(id, figure[:filename]), 'w') do |file|
       file.write(figure[:tempfile].read)
     end
     db.sadd "figures:figure_set:#{id}:other_figures", figure[:filename]
-  end
+  }
   db.sadd "figures:figure_sets", id
   redirect to("/designer/figures#plan")
 end
@@ -180,4 +181,38 @@ def figure_sets(source = "figures:figure_sets")
         .sort
     }
   end
+end
+
+def results(kind)
+  answers = db.smembers("#{kind}:surveys") \
+    .map do |survey|
+      db.smembers("survey:#{survey}:answers") \
+        .map do |answer|
+          {
+            id: answer,
+            surveyer: db.get("survey:#{survey}:surveyer_name"),
+            state: db.get("answer:#{answer}:state")
+          }
+        end
+    end.flatten
+  finished = answers \
+    .select { |answer| answer[:state] == 'finished' } \
+    .each { |answer| answer[:answer] = JSON.load(db.get("answer:#{answer[:id]}:answer")) }
+  p finished
+  surveyers = db.smembers("#{kind}:surveys") \
+    .map { |survey| db.get("survey:#{survey}:surveyer_name") } \
+    .uniq \
+    .sort \
+    .map do |surveyer|
+      {
+        name: surveyer,
+        all: answers.select {|a| a[:surveyer] == surveyer },
+        finished: finished.select {|a| a[:surveyer] == surveyer }
+      }
+    end
+  {
+    all: answers,
+    finished: finished,
+    surveyers: surveyers
+  }
 end

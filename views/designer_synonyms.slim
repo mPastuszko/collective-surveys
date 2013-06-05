@@ -63,30 +63,31 @@ h1.well Synonimy
             fieldset.text-center
               button.btn.btn-primary.btn-large type='submit' Uruchom ankietę jako #{session[:username]}
       #results-pane.tab-pane
-        h3
-          ' Ogółem: 123 ankiety
+        h2
+          ' Ogółem
+          span.badge.badge-success: span.lead #{@results[:finished].size}
+          '
+          span.lead ukończonych
+          '
+          span.badge: span.lead #{@results[:all].size}
+          '
+          span.lead rozpoczętych
           .btn-group.pull-right
             a.btn href='#'
               i.icon-download-alt
               '  Pobierz
-            a.btn href='#'
-              i.icon-fire
-              '  Resetuj
-        h3
-          ' Jan Kowalski: 99 ankiety
-          .btn-group.pull-right
-            a.btn href='#'
-              i.icon-download-alt
-              '  Pobierz
-            a.btn href='#'
-              i.icon-fire
-              '  Resetuj
-        h3
-          ' Jan Nowak: 24 ankiety
-          .btn-group.pull-right
-            a.btn href='#'
-              i.icon-download-alt
-              '  Pobierz
-            a.btn href='#'
-              i.icon-fire
-              '  Resetuj
+        - @results[:surveyers].each do |surveyer|
+          h3
+            = surveyer[:name]
+            ' 
+            span.badge.badge-success: span.lead #{surveyer[:finished].size}
+            '
+            span.lead ukończonych
+            '
+            span.badge: span.lead #{surveyer[:all].size}
+            '
+            span.lead rozpoczętych
+            .btn-group.pull-right
+              a.btn href='#'
+                i.icon-download-alt
+                '  Pobierz
