@@ -1,0 +1,14 @@
+.hero-unit
+  form.form-horizontal method='post' action='/authenticate'
+    legend Zarządzanie ankietami wymaga uwierzytelnienia
+    fieldset.control-group
+      label.control-label Imię i nazwisko:
+      .controls
+        input type='text' name='username'
+    fieldset.control-group
+      label.control-label Hasło:
+      .controls
+        input type='password' name='password'
+    fieldset
+      .controls
+        button.btn.btn-primary.btn-large type='submit' Zaloguj

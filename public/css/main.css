@@ -78,3 +78,41 @@ footer span {
 .vspace4 {
   height: 4em;
 }
+
+.figure {
+  width: 128px;
+  height: 128px;
+  margin: 1em 0.5em;
+}
+
+.rating {
+  margin: 0.5em;
+  padding: 3em 0.5em;
+}
+
+.rating span {
+  margin: 0 0.6em;
+}
+
+.rating input {
+  display: inline-block;
+  margin: 0 0.3em;
+  vertical-align: middle;
+}
+
+.thumbnails-small > li > img {
+  width: 64px;
+  height: 64px;
+}
+
+.thumbnails-small > li {
+  margin: 0.4em;
+}
+
+.base-figure {
+  box-shadow: 0 0 0 2px #0070FF;
+}
+
+.delete-figure-set {
+  margin: 1em;
+}

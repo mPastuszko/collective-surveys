@@ -1,4 +1,101 @@
 - @module = :figures
 h1.well Figury
-.alert
-  h2 W budowie...
+.tabbable
+  ul.nav.nav-tabs.nav-tabs-center
+    li: a data-toggle='tab' href='#plan-pane'
+      h2 ① Zaprojektuj
+    li: h2 ⇢
+    li: a data-toggle='tab' href='#publish-pane'
+      h2 ② Opublikuj
+    li: h2 ⇢
+    li: a data-toggle='tab' href='#results-pane'
+      h2 ③ Zobacz wyniki
+  .row
+    .span1
+    .span10.tab-content
+      #plan-pane.tab-pane
+        .alert.alert-info
+          strong Jak to działa?
+          '  Poniższa lista zawiera zestawy figur (jedna bazowa i kilka podobnych). Każdy z nich zostanie przedstawiony uczestnikowi badania. Jego zadaniem będzie określenie na skali 1–5 podobieństwa figur z zestawu do figury bazowej.
+        form.form-inline method='post' action='/designer/figures/plan' enctype='multipart/form-data'
+          legend: h3 Dodaj zestaw
+          fieldset.alert.alert-block
+            .row
+              .span8.text-center
+                .figures-input
+                  label Figura bazowa:
+                  ' 
+                  input.input-mini type='file' name='base_figure' accept='image/png'
+                .figures-input
+                  label Pozostałe figury:
+                  ' 
+                  input type='file' name='other_figures[]' multiple=true accept='image/png'
+              .span1
+                button.btn.btn-primary.btn-large type='submit' Dodaj zestaw
+        legend: h3
+          ' Zestawy figur
+          small Figura bazowa znajduje się na pierwszym miejscu każdego zestawu.
+        - @figure_sets.each do |figure_set|
+          - @figure_num = (@figure_num || 0) + 1
+          form.form-inline method='post' action="/designer/figures/plan/#{figure_set[:id]}"
+            input type='hidden' name='_method' value='delete'
+            label.span1: h3 #{@figure_num}.
+            ul.thumbnails.thumbnails-small.well.span8
+              li: img.thumbnail.figure.base-figure.img-rounded.img-polaroid src=url(figure_set[:base_figure])
+              - figure_set[:other_figures].each do |figure|
+                li: img.thumbnail.figure.img-rounded src=url(figure)
+            button.btn.btn-danger.delete-figure-set.span type='submit' Usuń
+      #publish-pane.tab-pane
+        .alert.alert-info
+          strong Jak to działa?
+          '  Każdy ankieter otrzymuje osobisty link, który rozsyła uczestnikom badania. Dzięki temu zebrane później wyniki można przypisać do konkretnego ankietera.
+        - if @survey_link
+          form method='post' action='/designer/figures/reset'
+            fieldset
+              legend Twój osobisty link do ankiety
+              label Skopiuj poniższy link i wyślij go uczestnikom badania
+              input.span8 type='text' name='survey_link' value=@survey_link readonly=true
+            fieldset
+              legend Zarządzanie ankietą
+              button.btn.btn-danger type='submit' Wstrzymaj ankietę
+              .help-inline Uwaga: Wszystkie zebrane przez Ciebie dotychczas wyniki zostaną utracone.
+            javascript:
+              $(function() {
+                var selectSurveyLink = function() {
+                    $(this).select();
+                  }
+                $('input[name="survey_link"]').click(selectSurveyLink).trigger('click');
+              });
+        - else
+          form.form-inline method='post' action='/designer/figures/publish'
+            fieldset.text-center
+              button.btn.btn-primary.btn-large type='submit' Uruchom ankietę jako #{session[:username]}
+      #results-pane.tab-pane
+        h2
+          ' Ogółem
+          span.badge.badge-success: span.lead #{@results[:finished].size}
+          '
+          span.lead ukończonych
+          '
+          span.badge: span.lead #{@results[:all].size}
+          '
+          span.lead rozpoczętych
+          .btn-group.pull-right
+            a.btn href='#'
+              i.icon-download-alt
+              '  Pobierz
+        - @results[:surveyers].each do |surveyer|
+          h3
+            = surveyer[:name]
+            ' 
+            span.badge.badge-success: span.lead #{surveyer[:finished].size}
+            '
+            span.lead ukończonych
+            '
+            span.badge: span.lead #{surveyer[:all].size}
+            '
+            span.lead rozpoczętych
+            .btn-group.pull-right
+              a.btn href='#'
+                i.icon-download-alt
+                '  Pobierz

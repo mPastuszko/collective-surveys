@@ -42,12 +42,15 @@ h1.well Synonimy
           strong Jak to działa?
           '  Każdy ankieter otrzymuje osobisty link, który rozsyła uczestnikom badania. Dzięki temu zebrane później wyniki można przypisać do konkretnego ankietera.
         - if @survey_link
-          form.form-inline
-            legend: h3
-              ' Twój osobisty link do ankiety
-            label Skopiuj poniższy link i wyślij go uczestnikom badania
+          form method='post' action='/designer/synonyms/reset'
             fieldset
+              legend Twój osobisty link do ankiety
+              label Skopiuj poniższy link i wyślij go uczestnikom badania
               input.span8 type='text' name='survey_link' value=@survey_link readonly=true
+            fieldset
+              legend Zarządzanie ankietą
+              button.btn.btn-danger type='submit' Wstrzymaj ankietę
+              .help-inline Uwaga: Wszystkie zebrane przez Ciebie dotychczas wyniki zostaną utracone.
             javascript:
               $(function() {
                 var selectSurveyLink = function() {
@@ -56,40 +59,35 @@ h1.well Synonimy
                 $('input[name="survey_link"]').click(selectSurveyLink).trigger('click');
               });
         - else
-          form.form-inline
-            / method='post' action='/designer/synonyms/publish'
-            legend: h3
-              ' Wygeneruj osobisty link do ankiety
+          form.form-inline method='post' action='/designer/synonyms/publish'
             fieldset.text-center
-              .alert.alert-warning W budowie...
-              / input.input-xlarge type='text' name='surveyer_name' placeholder='Wpisz swoje imię i nazwisko'
-              / ' 
-              / button.btn.btn-primary type='submit' Wygeneruj link
+              button.btn.btn-primary.btn-large type='submit' Uruchom ankietę jako #{session[:username]}
       #results-pane.tab-pane
-        h3
-          ' Ogółem: 123 ankiety
+        h2
+          ' Ogółem
+          span.badge.badge-success: span.lead #{@results[:finished].size}
+          '
+          span.lead ukończonych
+          '
+          span.badge: span.lead #{@results[:all].size}
+          '
+          span.lead rozpoczętych
           .btn-group.pull-right
             a.btn href='#'
               i.icon-download-alt
               '  Pobierz
-            a.btn href='#'
-              i.icon-fire
-              '  Resetuj
-        h3
-          ' Jan Kowalski: 99 ankiety
-          .btn-group.pull-right
-            a.btn href='#'
-              i.icon-download-alt
-              '  Pobierz
-            a.btn href='#'
-              i.icon-fire
-              '  Resetuj
-        h3
-          ' Jan Nowak: 24 ankiety
-          .btn-group.pull-right
-            a.btn href='#'
-              i.icon-download-alt
-              '  Pobierz
-            a.btn href='#'
-              i.icon-fire
-              '  Resetuj
+        - @results[:surveyers].each do |surveyer|
+          h3
+            = surveyer[:name]
+            ' 
+            span.badge.badge-success: span.lead #{surveyer[:finished].size}
+            '
+            span.lead ukończonych
+            '
+            span.badge: span.lead #{surveyer[:all].size}
+            '
+            span.lead rozpoczętych
+            .btn-group.pull-right
+              a.btn href='#'
+                i.icon-download-alt
+                '  Pobierz

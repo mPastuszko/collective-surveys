@@ -16,7 +16,8 @@ html.no-js
     link rel="stylesheet" href="/css/bootstrap-sortable.css"
     link rel="stylesheet" href="/css/main.css"
     script src="/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"
-    script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"
+    - if settings.production?
+      script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"
     javascript:
       window.jQuery || document.write('<script src="/js/vendor/jquery-1.9.1.min.js"><\/script>')
   body
@@ -35,6 +36,8 @@ html.no-js
             li.divider-vertical
             li class=('active' if @module == :figures)
               a href='/designer/figures' Figury
+            li.divider-vertical
+          a.btn.btn-link.pull-right href='/designer/logout' Wyloguj
       == yield
     footer.navbar-fixed-bottom
       span
