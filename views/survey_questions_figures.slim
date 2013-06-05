@@ -17,7 +17,7 @@
             span.rating.well
               span niepodobne
               - (1..5).each do |rating|
-                input.answer type='radio' name="answer[#{@figure_set_num}][#{@figure_num}]" value=rating
+                input.answer type='radio' name="answer[#{figure_set[:id]}][#{@figure_num}]" value=rating
               span podobne
         .vspace4
     .vspace2
