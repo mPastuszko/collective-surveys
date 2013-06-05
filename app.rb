@@ -38,12 +38,17 @@ end
 
 post '/authenticate' do
   password_valid = (Digest::SHA1.hexdigest(params[:password]) == settings.password_hash)
-  session[:authenticated] = true if password_valid
+  session[:username] = params[:username] if password_valid
   redirect to('/designer')
 end
 
 before '/designer*' do
-  halt slim(:designer_authenticate, :layout => :layout_survey) unless session[:authenticated]
+  halt slim(:designer_authenticate, :layout => :layout_survey) unless session[:username]
+end
+
+get '/designer/logout' do
+  session[:username] = nil
+  redirect to('/designer')
 end
 
 get '/designer' do
@@ -108,7 +113,7 @@ post %r{/designer/(synonyms|homophones)/publish} do |m|
   saved = false
   until saved
     survey_id = SecureRandom.urlsafe_base64
-    saved = db.setnx "survey:#{survey_id}:surveyer_name", params[:surveyer_name]
+    saved = db.setnx "survey:#{survey_id}:surveyer_name", session[:username]
   end
   db.set "survey:#{survey_id}:kind", m
   case m
