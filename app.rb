@@ -110,7 +110,7 @@ delete '/designer/figures/plan/:id' do |id|
   redirect to("/designer/figures#plan")
 end
 
-post %r{/designer/(synonyms|homophones)/publish} do |m|
+post %r{/designer/(synonyms|homophones|figures)/publish} do |m|
   saved = false
   until saved
     survey_id = SecureRandom.urlsafe_base64
@@ -125,6 +125,8 @@ post %r{/designer/(synonyms|homophones)/publish} do |m|
       .map(&:chomp) \
       .reject{ |e| e == '' }
     db.set "survey:#{survey_id}:base_words", base_words.to_json
+  when 'figures'
+    db.sadd "survey:#{survey_id}:figure_sets", db.smembers("#{m}:figure_sets")
   end
   db.sadd "#{m}:surveys", survey_id
   session[m] ||= {}
@@ -132,7 +134,7 @@ post %r{/designer/(synonyms|homophones)/publish} do |m|
   redirect to("/designer/#{m}#publish")
 end
 
-post %r{/designer/(synonyms|homophones)/reset} do |m|
+post %r{/designer/(synonyms|homophones|figures)/reset} do |m|
   survey_id = session[m] && session[m][:survey_id]
   db.srem "#{m}:surveys", survey_id
   session[m][:survey_id] = nil
