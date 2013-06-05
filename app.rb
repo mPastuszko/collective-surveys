@@ -60,15 +60,7 @@ get %r{/designer/(synonyms|homophones|figures)} do |m|
   when 'synonyms', 'homophones'
     @base_words = db.get "#{m}:base_words"
   when 'figures'
-    @figure_sets = db.smembers("figures:figure_sets").sort.map do |id|
-      {
-        id: id,
-        base_figure: "/figure/#{id}/" + db.get("figures:figure_set:#{id}:base_figure"),
-        other_figures: db.smembers("figures:figure_set:#{id}:other_figures") \
-          .map { |figure| "/figure/#{id}/#{figure}" } \
-          .sort
-      }
-    end
+    @figure_sets = figure_sets
   end
   session[m] ||= {}
   @survey_link = session[m][:survey_id] && url("/survey/#{session[m][:survey_id]}")
@@ -168,10 +160,24 @@ def survey_data(survey_id)
   case kind
   when 'synonyms', 'homophones'
     data[:base_words] = JSON.load(db.get("survey:#{survey_id}:base_words"))
+  when 'figures'
+    data[:figure_sets] = figure_sets("survey:#{survey_id}:figure_sets")
   end
   data
 end
 
 def figure_path(set_id, filename)
   File.join(settings.figures_path, set_id.to_s, filename)
+end
+
+def figure_sets(source = "figures:figure_sets")
+  db.smembers(source).sort.map do |id|
+    {
+      id: id,
+      base_figure: "/figure/#{id}/" + db.get("figures:figure_set:#{id}:base_figure"),
+      other_figures: db.smembers("figures:figure_set:#{id}:other_figures") \
+        .map { |figure| "/figure/#{id}/#{figure}" } \
+        .sort
+    }
+  end
 end
