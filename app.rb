@@ -70,7 +70,8 @@ get %r{/designer/(synonyms|homophones|figures)} do |m|
       }
     end
   end
-  @survey_link = session[m] && session[m][:survey_link]
+  session[m] ||= {}
+  @survey_link = session[m][:survey_id] && url("/survey/#{session[m][:survey_id]}")
   slim "designer_#{m}".to_sym, :layout => :layout_designer
 end
 
@@ -127,7 +128,14 @@ post %r{/designer/(synonyms|homophones)/publish} do |m|
   end
   db.sadd "#{m}:surveys", survey_id
   session[m] ||= {}
-  session[m][:survey_link] = url("/survey/#{survey_id}")
+  session[m][:survey_id] = survey_id
+  redirect to("/designer/#{m}#publish")
+end
+
+post %r{/designer/(synonyms|homophones)/reset} do |m|
+  survey_id = session[m] && session[m][:survey_id]
+  db.srem "#{m}:surveys", survey_id
+  session[m][:survey_id] = nil
   redirect to("/designer/#{m}#publish")
 end
 
