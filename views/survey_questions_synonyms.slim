@@ -1,12 +1,9 @@
 .hero-unit
   h2 Krok 1 z 2
   p
-    ' Poniżej znajduje się lista słów. Przy każdym słowie napisz słowo lub słowa, których
-    strong znaczenie 
-    ' wydaje Ci się najbardziej zbliżone. Np. dla słowa
-    em pies 
-    ' mógłbyś napisać
-    em miska, obroża, przyjaciel.
+    ' Poniżej znajduje się lista słów. Twoim zadaniem będzie dopisanie
+    strong pierwszego skojarzenia
+    ' , jakie Ci przychodzi do głowy, do każdego z podanych wyrazów. Ważne, by skojarzenie było jednowyrazowe. Unikaj nazw własnych, imion i zaimków zwrotnych („się”).
   .vspace2
   form.questions.form-horizontal method='post'
     - @data[:base_words].each do |word|
