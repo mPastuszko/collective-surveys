@@ -64,7 +64,7 @@ get %r{/designer/(synonyms|homophones|figures)} do |m|
   end
   session[m] ||= {}
   @survey_link = session[m][:survey_id] && url("/survey/#{session[m][:survey_id]}")
-  @results = results(m)
+  @answers = answers(m)
   slim "designer_#{m}".to_sym, :layout => :layout_designer
 end
 
@@ -183,7 +183,7 @@ def figure_sets(source = "figures:figure_sets")
   end
 end
 
-def results(kind)
+def answers(kind)
   answers = db.smembers("#{kind}:surveys") \
     .map do |survey|
       db.smembers("survey:#{survey}:answers") \

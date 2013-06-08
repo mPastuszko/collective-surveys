@@ -73,18 +73,18 @@ h1.well Figury
       #results-pane.tab-pane
         h2
           ' Ogółem
-          span.badge.badge-success: span.lead #{@results[:finished].size}
+          span.badge.badge-success: span.lead #{@answers[:finished].size}
           '
           span.lead ukończonych
           '
-          span.badge: span.lead #{@results[:all].size}
+          span.badge: span.lead #{@answers[:all].size}
           '
           span.lead rozpoczętych
           .btn-group.pull-right
             a.btn href='#'
               i.icon-download-alt
               '  Pobierz
-        - @results[:surveyers].each do |surveyer|
+        - @answers[:surveyers].each do |surveyer|
           h3
             = surveyer[:name]
             ' 
