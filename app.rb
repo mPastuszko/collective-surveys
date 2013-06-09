@@ -191,14 +191,14 @@ def answers(kind)
           {
             id: answer,
             surveyer: db.get("survey:#{survey}:surveyer_name"),
-            state: db.get("answer:#{answer}:state")
+            state: db.get("answer:#{answer}:state"),
+            answer_raw: db.get("answer:#{answer}:answer")
           }
         end
     end.flatten
   finished = answers \
-    .select { |answer| answer[:state] == 'finished' } \
-    .each { |answer| answer[:answer] = JSON.load(db.get("answer:#{answer[:id]}:answer")) }
-  p finished
+    .select { |answer| answer[:state] == 'finished' and answer[:answer_raw] } \
+    .each { |answer| answer[:answer] =  JSON.load(answer[:answer_raw]) }
   surveyers = db.smembers("#{kind}:surveys") \
     .map { |survey| db.get("survey:#{survey}:surveyer_name") } \
     .uniq \
