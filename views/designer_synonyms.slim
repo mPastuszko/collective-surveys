@@ -73,9 +73,18 @@ h1.well Synonimy
           '
           span.lead rozpoczętych
           .btn-group.pull-right
-            a.btn href='#'
+            a.btn href='/designer/synonyms/results-finished.csv'
               i.icon-download-alt
               '  Pobierz
+            a.btn.dropdown-toggle data-toggle='dropdown'
+              span.caret
+            ul.dropdown-menu
+              li: a href='/designer/synonyms/results-finished.csv'
+                i.icon-ok
+                '  Ukończone
+              li: a href='/designer/synonyms/results-all.csv'
+                i.icon-align-justify
+                '  Wszystkie
         - @answers[:surveyers].each do |surveyer|
           h3
             = surveyer[:name]
@@ -87,7 +96,3 @@ h1.well Synonimy
             span.badge: span.lead #{surveyer[:all].size}
             '
             span.lead rozpoczętych
-            .btn-group.pull-right
-              a.btn href='#'
-                i.icon-download-alt
-                '  Pobierz

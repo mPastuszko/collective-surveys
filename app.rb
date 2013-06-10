@@ -7,6 +7,7 @@ require 'yaml'
 require 'securerandom'
 require 'redis'
 require 'digest/sha1'
+require 'set'
 
 require_relative 'lib/survey_answer.rb'
 
@@ -53,6 +54,14 @@ end
 
 get '/designer' do
   slim :designer_index, :layout => :layout_designer
+end
+
+get %r{/designer/(synonyms|homophones|figures)/results-(finished|all).csv} do |m, subset|
+  content_type :csv
+  answers = answers(m)[subset.to_sym]
+  normalize_answers(m, answers) \
+    .map { |row| row.map{|column| "\"#{column}\""}.join(';') } \
+    .join($/)
 end
 
 get %r{/designer/(synonyms|homophones|figures)} do |m|
@@ -192,13 +201,24 @@ def answers(kind)
             id: answer,
             surveyer: db.get("survey:#{survey}:surveyer_name"),
             state: db.get("answer:#{answer}:state"),
+            kind: kind.to_s,
+            gender: db.get("answer:#{answer}:gender"),
+            age: db.get("answer:#{answer}:age"),
+            question: (case kind
+            when 'synonyms', 'homophones'
+              (tmp = db.get("survey:#{survey}:base_words") and JSON.load(tmp))
+            when 'figures'
+              db.get("survey:#{survey}:figure_sets")
+            end),
             answer_raw: db.get("answer:#{answer}:answer")
           }
         end
-    end.flatten
+    end \
+    .flatten \
+    .sort {|a, b| a[:id] <=> b[:id] }
   finished = answers \
     .select { |answer| answer[:state] == 'finished' and answer[:answer_raw] } \
-    .each { |answer| answer[:answer] =  JSON.load(answer[:answer_raw]) }
+    .each { |answer| answer[:answer] = JSON.load(answer[:answer_raw]) }
   surveyers = db.smembers("#{kind}:surveys") \
     .map { |survey| db.get("survey:#{survey}:surveyer_name") } \
     .uniq \
@@ -215,4 +235,28 @@ def answers(kind)
     finished: finished,
     surveyers: surveyers
   }
+end
+
+def normalize_answers(kind, answers)
+  questions = questions(answers).to_a.sort
+  header = ['Nr', 'Ankieter', 'Stan', 'Rodzaj', 'Płeć', 'Wiek'] + questions
+  case kind
+  when 'synonyms', 'homophones'
+    [header] + answers.map do |a|
+      [
+        a[:id],
+        a[:surveyer],
+        a[:state],
+        a[:kind],
+        a[:gender],
+        a[:age],
+      ] + questions.map do |q|
+        a[:answer] and index = questions.index(q) and a[:answer][index]
+      end
+    end
+  end
+end
+
+def questions(answers)
+  answers.inject(Set.new) {|questions, a| questions.merge(a[:question]) }
 end
