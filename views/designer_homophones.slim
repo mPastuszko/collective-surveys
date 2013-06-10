@@ -63,36 +63,33 @@ h1.well Homofony
             fieldset.text-center
               button.btn.btn-primary.btn-large type='submit' Uruchom ankietę jako #{session[:username]}
       #results-pane.tab-pane
-        h2
-          ' Ogółem
-          span.badge.badge-success: span.lead #{@answers[:finished].size}
-          '
-          span.lead ukończonych
-          '
-          span.badge: span.lead #{@answers[:all].size}
-          '
-          span.lead rozpoczętych
-          .btn-group.pull-right
-            a.btn href='/designer/homophones/results-finished.csv'
-              i.icon-download-alt
-              '  Pobierz
-            a.btn.dropdown-toggle data-toggle='dropdown'
-              span.caret
-            ul.dropdown-menu
-              li: a href='/designer/homophones/results-finished.csv'
-                i.icon-ok
-                '  Ukończone
-              li: a href='/designer/homophones/results-all.csv'
-                i.icon-align-justify
-                '  Wszystkie
-        - @answers[:surveyers].each do |surveyer|
-          h3
-            = surveyer[:name]
-            ' 
-            span.badge.badge-success: span.lead #{surveyer[:finished].size}
-            '
-            span.lead ukończonych
-            '
-            span.badge: span.lead #{surveyer[:all].size}
-            '
-            span.lead rozpoczętych
+        table.table
+          thead: tr
+            th 
+            th.lead Ukończonych
+            th.lead Rozpoczętych
+            th
+          tbody
+            tr.success
+              td: span.lead: strong Ogółem
+              td: span.badge.badge-success: span.lead #{@answers[:finished].size}
+              td: span.badge: span.lead #{@answers[:all].size}
+              td: .btn-group.pull-right
+                a.btn href='/designer/homophones/results-finished.csv'
+                  i.icon-download-alt
+                  '  Pobierz
+                a.btn.dropdown-toggle data-toggle='dropdown'
+                  span.caret
+                ul.dropdown-menu
+                  li: a href='/designer/homophones/results-finished.csv'
+                    i.icon-ok
+                    '  Ukończone
+                  li: a href='/designer/homophones/results-all.csv'
+                    i.icon-align-justify
+                    '  Wszystkie
+            - @answers[:surveyers].each do |surveyer|
+              tr
+                td: span.lead= surveyer[:name]
+                td: span.badge.badge-success: span.lead #{surveyer[:finished].size}
+                td: span.badge: span.lead #{surveyer[:all].size}
+                td

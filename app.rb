@@ -222,14 +222,13 @@ def answers(kind)
   surveyers = db.smembers("#{kind}:surveys") \
     .map { |survey| db.get("survey:#{survey}:surveyer_name") } \
     .uniq \
-    .sort \
     .map do |surveyer|
       {
         name: surveyer,
         all: answers.select {|a| a[:surveyer] == surveyer },
         finished: finished.select {|a| a[:surveyer] == surveyer }
       }
-    end
+    end.sort {|a, b| b[:finished].size <=> a[:finished].size }
   {
     all: answers,
     finished: finished,
