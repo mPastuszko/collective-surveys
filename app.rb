@@ -222,7 +222,7 @@ def answers(kind)
             age: db.get("answer:#{answer}:age"),
             question: (case kind
             when 'synonyms', 'homophones'
-              (tmp = db.get("survey:#{survey}:base_words") and JSON.load(tmp))
+              tmp = db.get("survey:#{survey}:base_words") and JSON.load(tmp).map(&:strip)
             when 'figures'
               db.get("survey:#{survey}:figure_sets")
             end),
@@ -257,16 +257,18 @@ def normalize_answers(kind, answers)
   header = ['Nr', 'Ankieter', 'Stan', 'Rodzaj', 'Płeć', 'Wiek'] + questions
   case kind
   when 'synonyms', 'homophones'
-    [header] + answers.map do |a|
+    [header] + answers \
+      .sort {|a, b| a[:id].to_i <=> b[:id].to_i } \
+      .map do |a|
       [
         a[:id],
         a[:surveyer],
         a[:state],
         a[:kind],
         a[:gender],
-        a[:age],
+        a[:age].to_i,
       ] + questions.map do |q|
-        a[:answer] and index = a[:question].index(q) and a[:answer][index]
+        a[:answer] and index = a[:question].index(q) and a[:answer][index].strip
       end
     end
   end
