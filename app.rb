@@ -268,7 +268,9 @@ def normalize_answers(kind, answers)
         a[:gender],
         a[:age].to_i,
       ] + questions.map do |q|
-        a[:answer] and index = a[:question].index(q) and a[:answer][index].strip
+        a[:answer] \
+          and index = a[:question].index(q) \
+          and a[:answer][index].strip.downcase
       end
     end
   end
