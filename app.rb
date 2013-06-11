@@ -224,7 +224,7 @@ def answers(kind)
             when 'synonyms', 'homophones'
               tmp = db.get("survey:#{survey}:base_words") and JSON.load(tmp).map(&:strip)
             when 'figures'
-              db.get("survey:#{survey}:figure_sets")
+              db.smembers("survey:#{survey}:figure_sets")
             end),
             answer_raw: db.get("answer:#{answer}:answer")
           }
@@ -273,6 +273,8 @@ def normalize_answers(kind, answers)
           and a[:answer][index].strip.downcase
       end
     end
+  when 'figures'
+    [header]
   end
 end
 
