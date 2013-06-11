@@ -32,9 +32,18 @@ function validateRadioInputs(form) {
   }).size() === 0;
 }
 
+function tabShown(event) {
+  var tab_id = $(event.target).
+    attr('href').
+    slice(0, -5);
+  window.location.hash = tab_id;
+}
+
 $(function() {
   activateTabByAnchor();
   $('form.questions input.answer').
     keyup(validateQuestionsForm).
     change(validateQuestionsForm);
+  $('#designer-tabs > li > a').
+    on('shown', tabShown);
 });
