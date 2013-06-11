@@ -94,13 +94,28 @@ h1.well Synonimy
                 td: span.badge.badge-success: span.lead #{surveyer[:finished].size}
                 td: span.badge: span.lead #{surveyer[:all].size}
                 td
-        h2 Wyniki
-        dl.dl-horizontal
-          - @results.each do |words|
-            dt= words.first
-            dd: ul.unstyled
-              - words[1..-1].each do |word, frequency|
-                li
-                  span.badge class=badge_for_frequency(frequency) = frequency
-                  '
-                  = word
+        - if @answers[:finished].empty?
+          .alert.alert-warning.alert-block.lead
+            strong Brak wyników... 
+            ' Jeszcze nikt z badanych nie ukończył wypełniać ankiety.
+        - else
+          h2 Badani
+          .vspace1
+          .genders.progress
+            - @women_percent = (@genders[:female] * 100.0 / @genders[:all]).round
+            - @men_percent = (@genders[:male] * 100.0 / @genders[:all]).round
+            .bar.bar-info style="width: #{@women_percent}%"
+              ' Kobiety – #{@women_percent}%
+            .bar.bar-warning style="width: #{@men_percent}%"
+              ' Mężczyźni – #{@men_percent}%
+          .lead.text-center w wieku od #{@ages.min} do #{@ages.max} lat (średnio #{@avg_age})
+          h2 Wyniki
+          dl.dl-horizontal
+            - @results.each do |words|
+              dt= words.first
+              dd: ul.unstyled
+                - words[1..-1].each do |word, frequency|
+                  li
+                    span.badge class=badge_for_frequency(frequency) = frequency
+                    '
+                    = word

@@ -116,3 +116,13 @@ footer span {
 .delete-figure-set {
   margin: 1em;
 }
+
+.genders {
+  height: 3em;
+
+}
+
+.genders .bar {
+  line-height: 2em;
+  font-size: 1.5em;
+}

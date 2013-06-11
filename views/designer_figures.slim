@@ -71,6 +71,7 @@ h1.well Figury
             fieldset.text-center
               button.btn.btn-primary.btn-large type='submit' Uruchom ankietę jako #{session[:username]}
       #results-pane.tab-pane
+        h2 Ankiety
         table.table
           thead: tr
             th 
@@ -101,3 +102,20 @@ h1.well Figury
                 td: span.badge.badge-success: span.lead #{surveyer[:finished].size}
                 td: span.badge: span.lead #{surveyer[:all].size}
                 td
+        - if @answers[:finished].empty?
+          .alert.alert-warning.alert-block.lead
+            strong Brak wyników... 
+            ' Jeszcze nikt z badanych nie ukończył wypełniać ankiety.
+        - else
+          h2 Badani
+          .vspace1
+          .genders.progress
+            - @women_percent = (@genders[:female] * 100.0 / @genders[:all]).round
+            - @men_percent = (@genders[:male] * 100.0 / @genders[:all]).round
+            .bar.bar-info style="width: #{@women_percent}%"
+              ' Kobiety – #{@women_percent}%
+            .bar.bar-warning style="width: #{@men_percent}%"
+              ' Mężczyźni – #{@men_percent}%
+          .lead.text-center w wieku od #{@ages.min} do #{@ages.max} lat (średnio #{@avg_age})
+          h2 Wyniki
+          .alert.alert-warning.alert-block.lead W budowie...

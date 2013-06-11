@@ -90,6 +90,15 @@ get %r{/designer/(synonyms|homophones|figures)} do |m|
   @survey_link = session[m][:survey_id] && url("/survey/#{session[m][:survey_id]}")
   @answers = answers(m)
   @results = results(m, @answers[:finished])
+  @ages = @answers[:finished].map { |a| a[:age].to_i }
+  @avg_age = (@ages.inject(:+).to_f / @answers[:finished].size)
+    .round(2)
+  @genders = @answers[:finished].map { |a|
+      a[:gender].to_sym
+    }.inject(Hash.new(0)) { |counter, a|
+      counter[a] += 1; counter
+    }
+  @genders[:all] = @genders.values.inject(:+)
   slim "designer_#{m}".to_sym, :layout => :layout_designer
 end
 
