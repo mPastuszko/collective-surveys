@@ -85,6 +85,8 @@ get %r{/designer/(synonyms|homophones|figures)} do |m|
     @figure_sets = figure_sets
   end
   session[m] ||= {}
+  session[m][:survey_id] = db.smembers("#{m}:surveys") \
+    .find {|s| db.get("survey:#{s}:surveyer_name") == session[:username] }
   @survey_link = session[m][:survey_id] && url("/survey/#{session[m][:survey_id]}")
   @answers = answers(m)
   @results = results(m, @answers[:finished])
