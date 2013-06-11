@@ -63,6 +63,7 @@ h1.well Homofony
             fieldset.text-center
               button.btn.btn-primary.btn-large type='submit' Uruchom ankietę jako #{session[:username]}
       #results-pane.tab-pane
+        h2 Ankiety
         table.table
           thead: tr
             th 
@@ -93,3 +94,13 @@ h1.well Homofony
                 td: span.badge.badge-success: span.lead #{surveyer[:finished].size}
                 td: span.badge: span.lead #{surveyer[:all].size}
                 td
+        h2 Wyniki
+        dl.dl-horizontal
+          - @results.each do |words|
+            dt= words.first
+            dd: ul.unstyled
+              - words[1..-1].each do |word, frequency|
+                li
+                  span.badge class=badge_for_frequency(frequency) = frequency
+                  '
+                  = word

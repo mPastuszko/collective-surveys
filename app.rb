@@ -29,6 +29,19 @@ configure :test do
   disable :logging
 end
 
+helpers do
+  def badge_for_frequency(frequency)
+    case frequency
+    when 1
+      ''
+    when 2..10
+      'badge-warning'
+    else
+      'badge-important'
+    end
+  end
+end
+
 def db
  settings.db
 end
@@ -74,6 +87,7 @@ get %r{/designer/(synonyms|homophones|figures)} do |m|
   session[m] ||= {}
   @survey_link = session[m][:survey_id] && url("/survey/#{session[m][:survey_id]}")
   @answers = answers(m)
+  @results = results(m, @answers[:finished])
   slim "designer_#{m}".to_sym, :layout => :layout_designer
 end
 
@@ -254,6 +268,22 @@ def normalize_answers(kind, answers)
       end
     end
   end
+end
+
+def results(kind, answers)
+  normalize_answers(kind, answers) \
+    .transpose \
+    .slice(6..-1) \
+    .map do |words|
+      [
+        words.first,
+        *words[1..-1] \
+          .reject(&:nil?) \
+          .inject(Hash.new(0)) { |counter, word| counter[word] += 1; counter } \
+          .to_a \
+          .sort {|a, b| b.last <=> a.last }
+      ]
+    end
 end
 
 def questions(answers)
