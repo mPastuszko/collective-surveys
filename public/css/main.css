@@ -126,3 +126,13 @@ footer span {
   line-height: 2em;
   font-size: 1.5em;
 }
+
+.results .base-word {
+  font-size: x-large;
+  margin-bottom: .5em;
+}
+
+.results .statistics {
+  font-style: italic;
+  font-weight: normal;
+}

@@ -8,6 +8,7 @@ require 'securerandom'
 require 'redis'
 require 'digest/sha1'
 require 'set'
+require 'statsample'
 
 require_relative 'lib/survey_answer.rb'
 
@@ -293,17 +294,28 @@ def results(kind, answers)
     .transpose \
     .slice(6..-1) \
     .map do |words|
-      [
-        words.first,
-        *words[1..-1] \
-          .reject(&:nil?) \
-          .inject(Hash.new(0)) { |counter, word| counter[word] += 1; counter } \
-          .to_a \
-          .sort {|a, b| b.last <=> a.last }
-      ]
+      words_statistics = *words[1..-1] \
+        .reject(&:nil?) \
+        .inject(Hash.new(0)) { |counter, word| counter[word] += 1; counter } \
+        .to_a \
+        .sort {|a, b| b.last <=> a.last }
+      {
+        base_word: words.first,
+        histogram: words_statistics,
+        statistics: statistics(words_statistics)
+      }
     end
 end
 
 def questions(answers)
   answers.inject(Set.new) {|questions, a| questions.merge(a[:question]) }
+end
+
+def statistics(histogram)
+  scale = histogram.map(&:last).to_scale
+  {
+    standard_deviation: scale.standard_deviation_sample,
+    skewness: scale.skew,
+    kurtosis: scale.kurtosis
+  }
 end

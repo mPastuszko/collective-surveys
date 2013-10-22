@@ -110,11 +110,15 @@ h1.well Synonimy
               ' Mężczyźni – #{@men_percent}%
           .lead.text-center w wieku od #{@ages.min} do #{@ages.max} lat (średnio #{@avg_age})
           h2 Wyniki
-          dl.dl-horizontal
-            - @results.each do |words|
-              dt= words.first
+          dl.dl-horizontal.results
+            - @results.each do |word_set|
+              dt
+                .base-word= word_set[:base_word]
+                .statistics Odch. std.: #{word_set[:statistics][:standard_deviation].round(2)}
+                .statistics Skośność: #{word_set[:statistics][:skewness].round(2)}
+                .statistics Kurtoza: #{word_set[:statistics][:kurtosis].round(2)}
               dd: ul.unstyled
-                - words[1..-1].each do |word, frequency|
+                - word_set[:histogram].each do |word, frequency|
                   li
                     span.badge class=badge_for_frequency(frequency) = frequency
                     '

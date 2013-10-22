@@ -5,6 +5,7 @@ gem "slim"
 gem "thin"
 gem "nokogiri"
 gem "redis"
+gem "statsample"
 
 group :development do
   gem "rerun"
