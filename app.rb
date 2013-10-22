@@ -91,7 +91,9 @@ get %r{/designer/(synonyms|homophones|figures)} do |m|
     .find {|s| db.get("survey:#{s}:surveyer_name") == session[:username] }
   @survey_link = session[m][:survey_id] && url("/survey/#{session[m][:survey_id]}")
   @answers = answers(m)
+  
   @results = results(m, @answers[:finished])
+  @results = sort_results(@results, params[:sort] ||= 'alpha')
   @ages = @answers[:finished].map { |a| a[:age].to_i }
   @avg_age = (@ages.inject(:+).to_f / @answers[:finished].size)
     .round(2)
@@ -318,4 +320,14 @@ def statistics(histogram)
     skewness: scale.skew,
     kurtosis: scale.kurtosis
   }
+end
+
+def sort_results(results, criterion)
+  if criterion
+    results.sort { |a, b|
+      b[:statistics][criterion.to_sym] <=> a[:statistics][criterion.to_sym]
+    }
+  else
+    results
+  end
 end
