@@ -13,6 +13,7 @@ require_relative 'lib/survey_answer.rb'
 
 configure do
   enable :sessions
+  set :protection, :except => [:frame_options, :ip_spoofing]
   raise 'Session secret key not fond. Run `rake session.secret` to generate one.' \
     unless File.exists?('session.secret')
   set :session_secret, File.read('session.secret')
@@ -114,10 +115,10 @@ end
 post '/designer/figures/plan' do
   return redirect to("/designer/figures#plan") unless params[:base_figure] and params[:other_figures].last
   id = db.incr "figures:figure_set:id"
-  
+
   figure_set_path = File.join(settings.figures_path, id.to_s)
   FileUtils.mkdir_p(figure_set_path)
-  
+
   File.open(figure_path(id, params[:base_figure][:filename]), 'w') do |file|
     file.write(params[:base_figure][:tempfile].read)
   end
