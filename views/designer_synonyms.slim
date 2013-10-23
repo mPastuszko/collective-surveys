@@ -117,10 +117,17 @@ h1.well Synonimy
             a.btn.btn-link href=url('/designer/synonyms/?sort=standard_deviation#results') wg odch. std.
             a.btn.btn-link href=url('/designer/synonyms/?sort=skewness#results') wg skośności
             a.btn.btn-link href=url('/designer/synonyms/?sort=kurtosis#results') wg kurtozy
+            .clearfix
+              em.muted Statystyki liczone są dla 7 najczęściej występujących słów w każdym zestawie.
           dl.dl-horizontal.results
             - @results.each do |word_set|
               dt
                 .base-word= word_set[:base_word]
+                .statistics: strong Dla pierwszych 7 słów:
+                .statistics Odch. std.: #{word_set[:statistics_first_7][:standard_deviation].round(2)}
+                .statistics Skośność: #{word_set[:statistics_first_7][:skewness].round(2)}
+                .statistics Kurtoza: #{word_set[:statistics_first_7][:kurtosis].round(2)}
+                .statistics: strong Dla całego zestawu:
                 .statistics Odch. std.: #{word_set[:statistics][:standard_deviation].round(2)}
                 .statistics Skośność: #{word_set[:statistics][:skewness].round(2)}
                 .statistics Kurtoza: #{word_set[:statistics][:kurtosis].round(2)}

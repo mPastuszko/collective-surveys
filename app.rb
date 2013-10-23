@@ -296,15 +296,16 @@ def results(kind, answers)
     .transpose \
     .slice(6..-1) \
     .map do |words|
-      words_statistics = *words[1..-1] \
+      words_histogram = *words[1..-1] \
         .reject(&:nil?) \
         .inject(Hash.new(0)) { |counter, word| counter[word] += 1; counter } \
         .to_a \
         .sort {|a, b| b.last <=> a.last }
       {
         base_word: words.first,
-        histogram: words_statistics,
-        statistics: statistics(words_statistics)
+        histogram: words_histogram,
+        statistics: statistics(words_histogram),
+        statistics_first_7: statistics(words_histogram[0...7])
       }
     end
 end
@@ -314,18 +315,23 @@ def questions(answers)
 end
 
 def statistics(histogram)
-  scale = histogram.map(&:last).to_scale
+  frequencies = histogram.map(&:last)
+  frequency_sample = frequencies
+    .each_with_index
+    .map { |freq, index| [index] * freq }
+    .flatten
+  frequency_sample_scale = frequency_sample.to_scale
   {
-    standard_deviation: scale.standard_deviation_sample,
-    skewness: scale.skew,
-    kurtosis: scale.kurtosis
+    standard_deviation: frequencies.to_scale.standard_deviation_sample,
+    skewness: frequency_sample_scale.skew,
+    kurtosis: frequency_sample_scale.kurtosis
   }
 end
 
 def sort_results(results, criterion)
   if criterion
     results.sort { |a, b|
-      b[:statistics][criterion.to_sym] <=> a[:statistics][criterion.to_sym]
+      b[:statistics_first_7][criterion.to_sym] <=> a[:statistics_first_7][criterion.to_sym]
     }
   else
     results
