@@ -114,6 +114,11 @@ h1.well Homofony
             - @results.each do |word_set|
               dt
                 .base-word= word_set[:base_word]
+                .statistics: strong Dla pierwszych 7 słów:
+                .statistics Odch. std.: #{word_set[:statistics_first_7][:standard_deviation].round(2)}
+                .statistics Skośność: #{word_set[:statistics_first_7][:skewness].round(2)}
+                .statistics Kurtoza: #{word_set[:statistics_first_7][:kurtosis].round(2)}
+                .statistics: strong Dla całego zestawu:
                 .statistics Odch. std.: #{word_set[:statistics][:standard_deviation].round(2)}
                 .statistics Skośność: #{word_set[:statistics][:skewness].round(2)}
                 .statistics Kurtoza: #{word_set[:statistics][:kurtosis].round(2)}
