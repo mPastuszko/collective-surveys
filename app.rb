@@ -296,16 +296,13 @@ def results(kind, answers)
     .transpose
     .slice(6..-1)
     .map do |words|
-      words_histogram = *words[1..-1]
-        .reject(&:nil?)
-        .inject(Hash.new(0)) { |counter, word| counter[word] += 1; counter }
-        .to_a
-        .sort {|a, b| b.last <=> a.last }
+      base_word, answered_words = words.first, words[1..-1]
+      answered_words_histogram = histogram(answered_words)
       {
         base_word: words.first,
-        histogram: words_histogram,
-        statistics: statistics(words_histogram),
-        statistics_first_6: statistics(words_histogram[0...6])
+        histogram: answered_words_histogram,
+        statistics: statistics(answered_words_histogram),
+        statistics_first_6: statistics(answered_words_histogram[0...6])
       }
     end
 end
@@ -336,4 +333,12 @@ def sort_results(results, criterion)
   else
     results
   end
+end
+
+def histogram(elements)
+  elements
+    .reject(&:nil?)
+    .inject(Hash.new(0)) { |counter, word| counter[word] += 1; counter }
+    .to_a
+    .sort {|a, b| b.last <=> a.last }
 end
