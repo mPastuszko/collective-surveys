@@ -305,7 +305,7 @@ def results(kind, answers)
         base_word: words.first,
         histogram: words_histogram,
         statistics: statistics(words_histogram),
-        statistics_first_7: statistics(words_histogram[0...7])
+        statistics_first_6: statistics(words_histogram[0...6])
       }
     end
 end
@@ -331,7 +331,7 @@ end
 def sort_results(results, criterion)
   if criterion
     results.sort { |a, b|
-      b[:statistics_first_7][criterion.to_sym] <=> a[:statistics_first_7][criterion.to_sym]
+      b[:statistics_first_6][criterion.to_sym] <=> a[:statistics_first_6][criterion.to_sym]
     }
   else
     results
