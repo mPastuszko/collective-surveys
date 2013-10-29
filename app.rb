@@ -298,8 +298,8 @@ def results(kind, answers)
     .slice(6..-1)
     .map do |words|
       base_word, answered_words = words.first, words[1..-1]
-      answered_words_merged = WordProcessor::merge_word_variants(answered_words)
-      answered_words_histogram = WordProcessor::histogram(answered_words)
+      answered_words_ascii = WordProcessor::normalize_national_chars(answered_words)
+      answered_words_histogram = WordProcessor::histogram(answered_words_ascii)
       {
         base_word: words.first,
         histogram: answered_words_histogram,
