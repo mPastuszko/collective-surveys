@@ -74,8 +74,8 @@ end
 get %r{/designer/(synonyms|homophones|figures)/results-(finished|all).csv} do |m, subset|
   content_type :csv
   answers = answers(m)[subset.to_sym]
-  normalize_answers(m, answers) \
-    .map { |row| row.map{|column| "\"#{column}\""}.join(';') } \
+  normalize_answers(m, answers)
+    .map { |row| row.map{|column| "\"#{column}\""}.join(';') }
     .join($/)
 end
 
@@ -87,7 +87,7 @@ get %r{/designer/(synonyms|homophones|figures)} do |m|
     @figure_sets = figure_sets
   end
   session[m] ||= {}
-  session[m][:survey_id] = db.smembers("#{m}:surveys") \
+  session[m][:survey_id] = db.smembers("#{m}:surveys")
     .find {|s| db.get("survey:#{s}:surveyer_name") == session[:username] }
   @survey_link = session[m][:survey_id] && url("/survey/#{session[m][:survey_id]}")
   @answers = answers(m)
@@ -150,10 +150,10 @@ post %r{/designer/(synonyms|homophones|figures)/publish} do |m|
   db.set "survey:#{survey_id}:kind", m
   case m
   when 'synonyms', 'homophones'
-    base_words = db.get("#{m}:base_words") \
-      .lines \
-      .to_a \
-      .map(&:chomp) \
+    base_words = db.get("#{m}:base_words")
+      .lines
+      .to_a
+      .map(&:chomp)
       .reject{ |e| e == '' }
     db.set "survey:#{survey_id}:base_words", base_words.to_json
   when 'figures'
@@ -214,17 +214,17 @@ def figure_sets(source = "figures:figure_sets")
     {
       id: id,
       base_figure: "/figure/#{id}/" + db.get("figures:figure_set:#{id}:base_figure"),
-      other_figures: db.smembers("figures:figure_set:#{id}:other_figures") \
-        .map { |figure| "/figure/#{id}/#{figure}" } \
+      other_figures: db.smembers("figures:figure_set:#{id}:other_figures")
+        .map { |figure| "/figure/#{id}/#{figure}" }
         .sort
     }
   end
 end
 
 def answers(kind)
-  answers = db.smembers("#{kind}:surveys") \
+  answers = db.smembers("#{kind}:surveys")
     .map do |survey|
-      db.smembers("survey:#{survey}:answers") \
+      db.smembers("survey:#{survey}:answers")
         .map do |answer|
           {
             id: answer,
@@ -242,15 +242,15 @@ def answers(kind)
             answer_raw: db.get("answer:#{answer}:answer")
           }
         end
-    end \
-    .flatten \
+    end
+    .flatten
     .sort {|a, b| a[:id] <=> b[:id] }
-  finished = answers \
-    .select { |answer| answer[:state] == 'finished' and answer[:answer_raw] } \
+  finished = answers
+    .select { |answer| answer[:state] == 'finished' and answer[:answer_raw] }
     .each { |answer| answer[:answer] = JSON.load(answer[:answer_raw]) }
-  surveyers = db.smembers("#{kind}:surveys") \
-    .map { |survey| db.get("survey:#{survey}:surveyer_name") } \
-    .uniq \
+  surveyers = db.smembers("#{kind}:surveys")
+    .map { |survey| db.get("survey:#{survey}:surveyer_name") }
+    .uniq
     .map do |surveyer|
       {
         name: surveyer,
@@ -270,7 +270,7 @@ def normalize_answers(kind, answers)
   header = ['Nr', 'Ankieter', 'Stan', 'Rodzaj', 'Płeć', 'Wiek'] + questions
   case kind
   when 'synonyms', 'homophones'
-    [header] + answers \
+    [header] + answers
       .sort {|a, b| a[:id].to_i <=> b[:id].to_i } \
       .map do |a|
       [
@@ -292,14 +292,14 @@ def normalize_answers(kind, answers)
 end
 
 def results(kind, answers)
-  normalize_answers(kind, answers) \
-    .transpose \
-    .slice(6..-1) \
+  normalize_answers(kind, answers)
+    .transpose
+    .slice(6..-1)
     .map do |words|
-      words_histogram = *words[1..-1] \
-        .reject(&:nil?) \
-        .inject(Hash.new(0)) { |counter, word| counter[word] += 1; counter } \
-        .to_a \
+      words_histogram = *words[1..-1]
+        .reject(&:nil?)
+        .inject(Hash.new(0)) { |counter, word| counter[word] += 1; counter }
+        .to_a
         .sort {|a, b| b.last <=> a.last }
       {
         base_word: words.first,
