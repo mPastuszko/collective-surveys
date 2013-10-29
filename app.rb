@@ -11,6 +11,7 @@ require 'set'
 require 'statsample'
 
 require_relative 'lib/survey_answer.rb'
+require_relative 'lib/word_processor.rb'
 
 configure do
   enable :sessions
@@ -297,32 +298,19 @@ def results(kind, answers)
     .slice(6..-1)
     .map do |words|
       base_word, answered_words = words.first, words[1..-1]
-      answered_words_histogram = histogram(answered_words)
+      answered_words_merged = WordProcessor::merge_word_variants(answered_words)
+      answered_words_histogram = WordProcessor::histogram(answered_words)
       {
         base_word: words.first,
         histogram: answered_words_histogram,
-        statistics: statistics(answered_words_histogram),
-        statistics_first_6: statistics(answered_words_histogram[0...6])
+        statistics: WordProcessor::statistics(answered_words_histogram),
+        statistics_first_6: WordProcessor::statistics(answered_words_histogram[0...6])
       }
     end
 end
 
 def questions(answers)
   answers.inject(Set.new) {|questions, a| questions.merge(a[:question]) }
-end
-
-def statistics(histogram)
-  frequencies = histogram.map(&:last)
-  frequency_sample = frequencies
-    .each_with_index
-    .map { |freq, index| [index] * freq }
-    .flatten
-  frequency_sample_scale = frequency_sample.to_scale
-  {
-    standard_deviation: frequencies.to_scale.standard_deviation_sample,
-    skewness: frequency_sample_scale.skew,
-    kurtosis: frequency_sample_scale.kurtosis
-  }
 end
 
 def sort_results(results, criterion)
@@ -333,12 +321,4 @@ def sort_results(results, criterion)
   else
     results
   end
-end
-
-def histogram(elements)
-  elements
-    .reject(&:nil?)
-    .inject(Hash.new(0)) { |counter, word| counter[word] += 1; counter }
-    .to_a
-    .sort {|a, b| b.last <=> a.last }
 end
