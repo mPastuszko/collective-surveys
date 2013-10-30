@@ -95,12 +95,14 @@ get %r{/designer/(synonyms|homophones|figures)} do |m|
   
   @results = results(m, @answers[:finished])
   @results = sort_results(@results, params[:sort] ||= 'alpha')
-  @ages = @answers[:finished].map { |a| a[:age].to_i }
-  @avg_age = (@ages.inject(:+).to_f / @answers[:finished].size)
+  @ages = @answers[:finished].map { |a| a[:age].to_i }.reject(&:zero?)
+  @avg_age = (@ages.inject(:+).to_f / @ages.size)
     .round(2)
   @genders = @answers[:finished].map { |a|
-      a[:gender].to_sym
-    }.inject(Hash.new(0)) { |counter, a|
+      a[:gender] && a[:gender].to_sym
+    }
+    .compact
+    .inject(Hash.new(0)) { |counter, a|
       counter[a] += 1; counter
     }
   @genders[:all] = @genders.values.inject(:+)
