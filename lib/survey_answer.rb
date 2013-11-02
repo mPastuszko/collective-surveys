@@ -21,7 +21,7 @@ class SurveyAnswer
     @db.set "answer:#{@answer_id}:gender", data[:gender] if data[:gender]
     @db.set "answer:#{@answer_id}:age", data[:age] if data[:age]
 
-    @db.set "answer:#{@answer_id}:state", new_state(state)
+    @db.set "answer:#{@answer_id}:state", (data[:state] || new_state(state))
   end
 
   protected

@@ -9,6 +9,7 @@ require 'redis'
 require 'digest/sha1'
 require 'set'
 require 'statsample'
+require 'csv'
 
 require_relative 'lib/survey_answer.rb'
 require_relative 'lib/word_processor.rb'
@@ -70,6 +71,39 @@ end
 
 get '/designer' do
   slim :designer_index, :layout => :layout_designer
+end
+
+get %r{/designer/(synonyms|homophones|figures)/import$} do |m|
+  @module = m.to_sym
+  @module_name = module_name(m)
+  slim :designer_import, :layout => :layout_designer
+end
+
+post %r{/designer/(synonyms|homophones|figures)/import$} do |m|
+  @module = m.to_sym
+  @module_name = module_name(m)
+  @file = params[:file][:tempfile]
+  @csv = CSV.read(@file, :col_sep => ';')
+  slim :designer_import_preview, :layout => :layout_designer
+end
+
+post %r{/designer/(synonyms|homophones|figures)/import/verified$} do |m|
+  csv = JSON[params[:answers]]
+  answers = csv[1..-1]
+  surveyer_name = csv[1][1]
+  base_data = csv[0][6..-1]
+  survey_id = create_survey(m, surveyer_name, base_data)
+  answers.each do |answer|
+    params = {
+      gender: answer[4],
+      age: answer[5],
+      answer: answer[6..-1],
+      state: answer[2]
+    }
+    answer = SurveyAnswer.new(db, survey_id, nil)
+    answer.update(params)
+  end
+  redirect to("/designer/#{m}")
 end
 
 get %r{/designer/(synonyms|homophones|figures)/results-(finished|all).csv} do |m, subset|
@@ -145,24 +179,7 @@ delete '/designer/figures/plan/:id' do |id|
 end
 
 post %r{/designer/(synonyms|homophones|figures)/publish} do |m|
-  saved = false
-  until saved
-    survey_id = SecureRandom.urlsafe_base64
-    saved = db.setnx "survey:#{survey_id}:surveyer_name", session[:username]
-  end
-  db.set "survey:#{survey_id}:kind", m
-  case m
-  when 'synonyms', 'homophones'
-    base_words = db.get("#{m}:base_words")
-      .lines
-      .to_a
-      .map(&:chomp)
-      .reject{ |e| e == '' }
-    db.set "survey:#{survey_id}:base_words", base_words.to_json
-  when 'figures'
-    db.sadd "survey:#{survey_id}:figure_sets", db.smembers("#{m}:figure_sets")
-  end
-  db.sadd "#{m}:surveys", survey_id
+  survey_id = create_survey(m, session[:username])
   session[m] ||= {}
   session[m][:survey_id] = survey_id
   redirect to("/designer/#{m}#publish")
@@ -194,6 +211,28 @@ end
 
 not_found do
   slim :not_found, :layout => :layout_survey
+end
+
+def create_survey(kind, surveyer_name, base_data = nil)
+  saved = false
+  until saved
+    survey_id = SecureRandom.urlsafe_base64
+    saved = db.setnx "survey:#{survey_id}:surveyer_name", surveyer_name
+  end
+  db.set "survey:#{survey_id}:kind", kind
+  case kind
+  when 'synonyms', 'homophones'
+    base_words = base_data || db.get("#{kind}:base_words")
+      .lines
+      .to_a
+      .map(&:chomp)
+      .reject{ |e| e == '' }
+    db.set "survey:#{survey_id}:base_words", base_words.to_json
+  when 'figures'
+    db.sadd "survey:#{survey_id}:figure_sets", db.smembers("#{kind}:figure_sets")
+  end
+  db.sadd "#{kind}:surveys", survey_id
+  survey_id
 end
 
 def survey_data(survey_id)
@@ -286,7 +325,7 @@ def normalize_answers(kind, answers)
       ] + questions.map do |q|
         a[:answer] \
           and index = a[:question].index(q) \
-          and a[:answer][index].strip.downcase
+          and (a[:answer][index] || '').strip.downcase
       end
     end
   when 'figures'
@@ -298,12 +337,13 @@ def results(kind, answers)
   normalize_answers(kind, answers)
     .transpose
     .slice(6..-1)
-    .map do |words|
-      base_word, answered_words = words.first, words[1..-1]
+    .map do |word_set|
+      base_word, answered_words = word_set.first, word_set[1..-1]
       answered_words_ascii = WordProcessor::normalize_national_chars(answered_words)
-      answered_words_histogram = WordProcessor::histogram(answered_words_ascii)
+      answered_words_clean = WordProcessor::clean(answered_words_ascii)
+      answered_words_histogram = WordProcessor::histogram(answered_words_clean)
       {
-        base_word: words.first,
+        base_word: word_set.first,
         histogram: answered_words_histogram,
         statistics: WordProcessor::statistics(answered_words_histogram),
         statistics_first_6: WordProcessor::statistics(answered_words_histogram[0...6])
@@ -323,4 +363,12 @@ def sort_results(results, criterion)
   else
     results
   end
+end
+
+def module_name(m)
+  {
+    synonyms: 'Synonimy',
+    homophones: 'Homofony',
+    figures: 'Figury'
+  }[m.to_sym]
 end

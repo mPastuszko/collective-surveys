@@ -1,0 +1,8 @@
+h1.well
+  = @module_name
+.row
+  form method='post' action="/designer/#{@module}/import" enctype='multipart/form-data'
+    fieldset.text-center
+      input name='file' type='file'
+    fieldset.text-center
+      button.btn.btn-primary.btn-large type='submit' Dalej

@@ -1,0 +1,16 @@
+h1.well
+  = @module_name
+.row
+  form method='post' action="/designer/#{@module}/import/verified"
+    fieldset
+      input name='answers' type='hidden' value=@csv.to_json
+      table.table.table-condensed
+        tr
+          - @csv.first.each do |field|
+            th= field
+        - @csv[1..-1].each do |row|
+          tr
+            - row.each do |field|
+              td= field
+    fieldset.text-center
+      button.btn.btn-primary.btn-large type='submit' Importuj

@@ -39,6 +39,12 @@ module WordProcessor
     words.map { |e| best_forms[ascii_form(e)] }
   end
 
+  def self.clean(words)
+    words.reject { |w|
+      w.strip.empty?
+    }
+  end
+
   def self.ascii_form(text)
     text.tr(CharSubs[:source], CharSubs[:target])
   end
