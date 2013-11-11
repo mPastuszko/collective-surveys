@@ -1,10 +1,16 @@
 .hero-unit
   h2 Witaj!
-  .lead
-    p Dziękujemy za wyrażenie chęci udziału w badaniu.
-    p Ankieta dotyczy podobieństwa słów i figur geometrycznych. Posłuży ona do stworzenia nowej metody badawczej.
-    p Ankieta jest anonimowa.
-  p.pull-right: em Studenci Psychologii Stosowanej UJ
+  - if @data[:instructions] and not @data[:instructions].empty?
+    .lead
+      - @data[:instructions].lines.to_a[0..-2].each do |paragraph|
+        p= paragraph
+    p.pull-right: em= @data[:instructions].lines.to_a.last
+  - else
+    .lead
+      p Dziękujemy za wyrażenie chęci udziału w badaniu.
+      p Ankieta dotyczy podobieństwa słów i figur geometrycznych. Posłuży ona do stworzenia nowej metody badawczej.
+      p Ankieta jest anonimowa.
+    p.pull-right: em Studenci Psychologii Stosowanej UJ
   .clearfix
   .vspace3
   form method='post'

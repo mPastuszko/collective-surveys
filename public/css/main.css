@@ -136,3 +136,7 @@ footer span {
   font-style: italic;
   font-weight: normal;
 }
+
+fieldset .instructions {
+  width: 90%;
+}

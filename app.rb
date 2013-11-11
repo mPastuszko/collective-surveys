@@ -92,7 +92,7 @@ post %r{/designer/(synonyms|homophones|figures)/import/verified$} do |m|
   answers = csv[1..-1]
   surveyer_name = csv[1][1]
   base_data = csv[0][6..-1]
-  survey_id = create_survey(m, surveyer_name, base_data)
+  survey_id = create_survey(m, surveyer_name, '', base_data)
   answers.each do |answer|
     params = {
       gender: answer[4],
@@ -179,7 +179,7 @@ delete '/designer/figures/plan/:id' do |id|
 end
 
 post %r{/designer/(synonyms|homophones|figures)/publish} do |m|
-  survey_id = create_survey(m, session[:username])
+  survey_id = create_survey(m, session[:username], params[:instructions])
   session[m] ||= {}
   session[m][:survey_id] = survey_id
   redirect to("/designer/#{m}#publish")
@@ -213,13 +213,14 @@ not_found do
   slim :not_found, :layout => :layout_survey
 end
 
-def create_survey(kind, surveyer_name, base_data = nil)
+def create_survey(kind, surveyer_name, instructions, base_data = nil)
   saved = false
   until saved
     survey_id = SecureRandom.urlsafe_base64
     saved = db.setnx "survey:#{survey_id}:surveyer_name", surveyer_name
   end
   db.set "survey:#{survey_id}:kind", kind
+  db.set "survey:#{survey_id}:instructions", instructions
   case kind
   when 'synonyms', 'homophones'
     base_words = base_data || db.get("#{kind}:base_words")
@@ -244,6 +245,7 @@ def survey_data(survey_id)
   when 'figures'
     data[:figure_sets] = figure_sets("survey:#{survey_id}:figure_sets")
   end
+  data[:instructions] = db.get "survey:#{survey_id}:instructions"
   data
 end
 
