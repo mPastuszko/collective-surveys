@@ -13,10 +13,13 @@ module WordProcessor
       .map { |freq, index| [index] * freq }
       .flatten
     frequency_sample_scale = frequency_sample.to_scale
+    sd = frequencies.to_scale.standard_deviation_sample
+    skew = frequency_sample_scale.skew
+    kurtosis = frequency_sample_scale.kurtosis
     {
-      standard_deviation: frequencies.to_scale.standard_deviation_sample,
-      skewness: frequency_sample_scale.skew,
-      kurtosis: frequency_sample_scale.kurtosis
+      standard_deviation: sd.nan? ? 0.0 : sd,
+      skewness: skew.nan? ? 0.0 : skew,
+      kurtosis: kurtosis.nan? ? 0.0 : kurtosis
     }
   end
 
