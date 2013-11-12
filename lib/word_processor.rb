@@ -20,6 +20,34 @@ module WordProcessor
     }
   end
 
+  def self.histograms_difference_matrix(word_sets, histogram_length = -1)
+    words = word_sets.map { |ws| ws[:base_word] }
+    histogram_matrices = word_sets.inject({}) { |memo, ws|
+      memo[ws[:base_word]] = Matrix[ws[:histogram][0...histogram_length].map(&:last)]
+      memo
+    }
+    differences_matrix = words.map { |word1|
+      words.map { |word2|
+        m1, m2 = histogram_matrices[word1], histogram_matrices[word2]
+        Statsample::Test.chi_square(m1, m2).chi_square.to_f
+      }
+    }
+    labelled_matrix = words.zip(differences_matrix)
+  end
+
+  def self.similar_distributions(word, histograms_difference_matrix, limit = -1)
+    words = histograms_difference_matrix.map(&:first)
+    histograms_difference_matrix
+      .assoc(word)
+      .last
+      .each_with_index
+      .sort
+      .slice(1...limit+1) # skip first because it is the same word as the given one
+      .map { |diff, index|
+        [words[index], diff]
+      }
+  end
+
   def self.histogram(elements)
     elements
       .reject(&:nil?)

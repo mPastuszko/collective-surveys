@@ -336,7 +336,7 @@ def normalize_answers(kind, answers)
 end
 
 def results(kind, answers)
-  normalize_answers(kind, answers)
+  results = normalize_answers(kind, answers)
     .transpose
     .slice(6..-1)
     .map do |word_set|
@@ -351,6 +351,14 @@ def results(kind, answers)
         statistics_first_6: WordProcessor::statistics(answered_words_histogram[0...6])
       }
     end
+
+  # Add similar histograms information
+  histograms_difference_matrix = WordProcessor::histograms_difference_matrix(results, 6)
+  results.each do |word_set|
+    word = word_set[:base_word]
+    word_set[:similar_distributions] = WordProcessor::similar_distributions(word, histograms_difference_matrix, 30)
+  end
+  results
 end
 
 def questions(answers)

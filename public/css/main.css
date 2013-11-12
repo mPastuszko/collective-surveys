@@ -137,6 +137,11 @@ footer span {
   font-weight: normal;
 }
 
+.results .statistics li {
+  text-align: left;
+  margin-left: 2em;
+}
+
 fieldset .instructions {
   width: 90%;
 }

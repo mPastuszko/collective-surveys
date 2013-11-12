@@ -1,7 +1,12 @@
 function activateTabByAnchor() {
-  var anchor = window.location.hash.substring(1);
-  if(anchor) {
-    $('.nav-tabs a[href="#' + anchor + '-pane"]').click();
+  var anchor = window.location.hash.substring(1).split('-');
+  var tab_name = anchor[0];
+  var word_anchor = anchor[1];
+  if(tab_name) {
+    $('.nav-tabs a[href="#' + tab_name + '-pane"]').click();
+    if(word_anchor) {
+      $(document.body).scrollTop($(anchor).offset().top);
+    }
   }
 }
 
