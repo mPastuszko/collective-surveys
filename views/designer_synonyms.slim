@@ -129,24 +129,25 @@ h1.well Synonimy
               em.muted Statystyki liczone są dla 6 najczęściej występujących słów w każdym zestawie.
           dl.dl-horizontal.results
             - @results.each do |word_set|
-              dt
-                .base-word id="results-#{word_set[:base_word]}"= word_set[:base_word]
-                .statistics: strong Dla pierwszych 6 słów:
-                .statistics Odch. std.: #{word_set[:statistics_first_6][:standard_deviation].round(2)}
-                .statistics Skośność: #{word_set[:statistics_first_6][:skewness].round(2)}
-                .statistics Kurtoza: #{word_set[:statistics_first_6][:kurtosis].round(2)}
-                .statistics: strong Dla całego zestawu:
-                .statistics Odch. std.: #{word_set[:statistics][:standard_deviation].round(2)}
-                .statistics Skośność: #{word_set[:statistics][:skewness].round(2)}
-                .statistics Kurtoza: #{word_set[:statistics][:kurtosis].round(2)}
-                .statistics: strong Podobne rozkłady:
-                .statistics
-                  ol
-                    - word_set[:similar_distributions].each do |word, diff|
-                      li: a href="#results-#{word}"= word
-              dd: ul.unstyled
-                - word_set[:histogram].each do |word, frequency|
-                  li
-                    span.badge class=badge_for_frequency(frequency) = frequency
-                    '
-                    = word
+              .clearfix
+                dt
+                  .base-word id="results-#{word_set[:base_word]}"= word_set[:base_word]
+                  .statistics: strong Dla pierwszych 6 słów:
+                  .statistics Odch. std.: #{word_set[:statistics_first_6][:standard_deviation].round(2)}
+                  .statistics Skośność: #{word_set[:statistics_first_6][:skewness].round(2)}
+                  .statistics Kurtoza: #{word_set[:statistics_first_6][:kurtosis].round(2)}
+                  .statistics: strong Dla całego zestawu:
+                  .statistics Odch. std.: #{word_set[:statistics][:standard_deviation].round(2)}
+                  .statistics Skośność: #{word_set[:statistics][:skewness].round(2)}
+                  .statistics Kurtoza: #{word_set[:statistics][:kurtosis].round(2)}
+                  .statistics: strong Podobne rozkłady:
+                  .statistics
+                    ol
+                      - word_set[:similar_distributions].each do |word, diff|
+                        li: a href="#results-#{word}"= word
+                dd: ul.unstyled
+                  - word_set[:histogram].each do |word, frequency|
+                    li
+                      span.badge class=badge_for_frequency(frequency) = frequency
+                      '
+                      = word

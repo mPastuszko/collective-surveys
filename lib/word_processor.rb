@@ -20,10 +20,12 @@ module WordProcessor
     }
   end
 
-  def self.histograms_difference_matrix(word_sets, histogram_length = -1)
+  def self.histograms_difference_matrix(word_sets, histogram_length)
     words = word_sets.map { |ws| ws[:base_word] }
     histogram_matrices = word_sets.inject({}) { |memo, ws|
-      memo[ws[:base_word]] = Matrix[ws[:histogram][0...histogram_length].map(&:last)]
+      histogram = ws[:histogram][0...histogram_length].map(&:last)
+      histogram.fill(1, histogram.size...histogram_length)
+      memo[ws[:base_word]] = Matrix[histogram]
       memo
     }
     differences_matrix = words.map { |word1|
@@ -58,13 +60,13 @@ module WordProcessor
 
   def self.normalize_national_chars(words)
     best_forms = Hash.new { |k, v| v }
-    words.each do |e|
+    words.compact.each do |e|
       better_form = e.count(CharSubs[:source]) > best_forms[ascii_form(e)].count(CharSubs[:source])
       if better_form
         best_forms[ascii_form(e)] = e
       end
     end
-    words.map { |e| best_forms[ascii_form(e)] }
+    words.map { |e| best_forms[ascii_form(e.to_s)] }
   end
 
   def self.clean(words)
