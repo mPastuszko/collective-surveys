@@ -77,6 +77,6 @@ h1.well Synonimy
           javascript:
             $("a[data-toggle='tab'][href='#results-pane']").on('shown', function() {
               if($('#results-pane').hasClass('not-loaded')) {
-                $('#results-pane').load("/designer/#{@module}/results-words");
+                $('#results-pane').load("/designer/#{@module}/results-words?sort=#{params[:sort] ||= 'alpha'}");
               }
             });

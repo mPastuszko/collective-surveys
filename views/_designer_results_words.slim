@@ -11,16 +11,16 @@ table.table
       td: span.badge.badge-success: span.lead #{@answers[:finished].size}
       td: span.badge: span.lead #{@answers[:all].size}
       td: .btn-group.pull-right
-        a.btn href='/designer/#{@module}/results-finished.csv'
+        a.btn href="/designer/#{@module}/results-finished.csv"
           i.icon-download-alt
           '  Pobierz
         a.btn.dropdown-toggle data-toggle='dropdown'
           span.caret
         ul.dropdown-menu
-          li: a href='/designer/#{@module}/results-finished.csv'
+          li: a href="/designer/#{@module}/results-finished.csv"
             i.icon-ok
             '  Ukończone
-          li: a href='/designer/#{@module}/results-all.csv'
+          li: a href="/designer/#{@module}/results-all.csv"
             i.icon-align-justify
             '  Wszystkie
     - @answers[:surveyers].each do |surveyer|
@@ -47,10 +47,10 @@ table.table
   h2 Wyniki
   .well.well-small
     ' Sortuj:
-    a.btn.btn-link href=url('/designer/#{@module}/#results') alfabetycznie
-    a.btn.btn-link href=url('/designer/#{@module}/?sort=standard_deviation#results') wg odch. std.
-    a.btn.btn-link href=url('/designer/#{@module}/?sort=skewness#results') wg skośności
-    a.btn.btn-link href=url('/designer/#{@module}/?sort=kurtosis#results') wg kurtozy
+    a.btn.btn-link href=url("/designer/#{@module}/#results") alfabetycznie
+    a.btn.btn-link href=url("/designer/#{@module}/?sort=standard_deviation#results") wg odch. std.
+    a.btn.btn-link href=url("/designer/#{@module}/?sort=skewness#results") wg skośności
+    a.btn.btn-link href=url("/designer/#{@module}/?sort=kurtosis#results") wg kurtozy
     .clearfix
       em.muted Statystyki liczone są dla 6 najczęściej występujących słów w każdym zestawie.
   dl.dl-horizontal.results
