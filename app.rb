@@ -114,19 +114,9 @@ get %r{/designer/(synonyms|homophones|figures)/results-(finished|all).csv} do |m
     .join($/)
 end
 
-get %r{/designer/(synonyms|homophones|figures)} do |m|
-  case m
-  when 'synonyms', 'homophones'
-    @base_words = db.get "#{m}:base_words"
-  when 'figures'
-    @figure_sets = figure_sets
-  end
-  session[m] ||= {}
-  session[m][:survey_id] = db.smembers("#{m}:surveys")
-    .find {|s| db.get("survey:#{s}:surveyer_name") == session[:username] }
-  @survey_link = session[m][:survey_id] && url("/survey/#{session[m][:survey_id]}")
+get %r{/designer/(synonyms|homophones|figures)/results-words} do |m|
+  @module = m.to_sym
   @answers = answers(m)
-  
   @results = results(m, @answers[:finished])
   @results = sort_results(@results, params[:sort] ||= 'alpha')
   @ages = @answers[:finished].map { |a| a[:age].to_i }.reject(&:zero?)
@@ -140,6 +130,20 @@ get %r{/designer/(synonyms|homophones|figures)} do |m|
       counter[a] += 1; counter
     }
   @genders[:all] = @genders.values.inject(:+)
+  slim "_designer_results_words".to_sym, :layout => false
+end
+
+get %r{/designer/(synonyms|homophones|figures)} do |m|
+  case m
+  when 'synonyms', 'homophones'
+    @base_words = db.get "#{m}:base_words"
+  when 'figures'
+    @figure_sets = figure_sets
+  end
+  session[m] ||= {}
+  session[m][:survey_id] = db.smembers("#{m}:surveys")
+    .find {|s| db.get("survey:#{s}:surveyer_name") == session[:username] }
+  @survey_link = session[m][:survey_id] && url("/survey/#{session[m][:survey_id]}")
   slim "designer_#{m}".to_sym, :layout => :layout_designer
 end
 

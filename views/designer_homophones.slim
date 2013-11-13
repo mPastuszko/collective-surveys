@@ -71,83 +71,12 @@ h1.well Homofony
             legend: h3
             fieldset.text-center
               button.btn.btn-primary.btn-large type='submit' Uruchom ankietę jako #{session[:username]}
-      #results-pane.tab-pane
-        h2 Ankiety
-        table.table
-          thead: tr
-            th 
-            th.lead Ukończone
-            th.lead Rozpoczęte
-            th
-          tbody
-            tr.success
-              td: span.lead: strong Ogółem
-              td: span.badge.badge-success: span.lead #{@answers[:finished].size}
-              td: span.badge: span.lead #{@answers[:all].size}
-              td: .btn-group.pull-right
-                a.btn href='/designer/homophones/results-finished.csv'
-                  i.icon-download-alt
-                  '  Pobierz
-                a.btn.dropdown-toggle data-toggle='dropdown'
-                  span.caret
-                ul.dropdown-menu
-                  li: a href='/designer/homophones/results-finished.csv'
-                    i.icon-ok
-                    '  Ukończone
-                  li: a href='/designer/homophones/results-all.csv'
-                    i.icon-align-justify
-                    '  Wszystkie
-            - @answers[:surveyers].each do |surveyer|
-              tr
-                td: span.lead= surveyer[:name]
-                td: span.badge.badge-success: span.lead #{surveyer[:finished].size}
-                td: span.badge: span.lead #{surveyer[:all].size}
-                td
-        - if @answers[:finished].empty?
-          .alert.alert-warning.alert-block.lead
-            strong Brak wyników... 
-            ' Jeszcze nikt z badanych nie ukończył wypełniać ankiety.
-        - else
-          h2 Badani
-          .vspace1
-          .genders.progress
-            - @women_percent = (@genders[:female] * 100.0 / @genders[:all]).round
-            - @men_percent = (@genders[:male] * 100.0 / @genders[:all]).round
-            .bar.bar-info style="width: #{@women_percent}%"
-              ' Kobiety – #{@women_percent}%
-            .bar.bar-warning style="width: #{@men_percent}%"
-              ' Mężczyźni – #{@men_percent}%
-          .lead.text-center w wieku od #{@ages.min} do #{@ages.max} lat (średnio #{@avg_age})
-          h2 Wyniki
-          .well.well-small
-            ' Sortuj:
-            a.btn.btn-link href=url('/designer/synonyms/#results') alfabetycznie
-            a.btn.btn-link href=url('/designer/synonyms/?sort=standard_deviation#results') wg odch. std.
-            a.btn.btn-link href=url('/designer/synonyms/?sort=skewness#results') wg skośności
-            a.btn.btn-link href=url('/designer/synonyms/?sort=kurtosis#results') wg kurtozy
-            .clearfix
-              em.muted Statystyki liczone są dla 6 najczęściej występujących słów w każdym zestawie.
-          dl.dl-horizontal.results
-            - @results.each do |word_set|
-              .clearfix
-                dt
-                  .base-word id="results-#{word_set[:base_word]}"= word_set[:base_word]
-                  .statistics: strong Dla pierwszych 6 słów:
-                  .statistics Odch. std.: #{word_set[:statistics_first_6][:standard_deviation].round(2)}
-                  .statistics Skośność: #{word_set[:statistics_first_6][:skewness].round(2)}
-                  .statistics Kurtoza: #{word_set[:statistics_first_6][:kurtosis].round(2)}
-                  .statistics: strong Dla całego zestawu:
-                  .statistics Odch. std.: #{word_set[:statistics][:standard_deviation].round(2)}
-                  .statistics Skośność: #{word_set[:statistics][:skewness].round(2)}
-                  .statistics Kurtoza: #{word_set[:statistics][:kurtosis].round(2)}
-                  .statistics: strong Podobne rozkłady:
-                  .statistics
-                    ol
-                      - word_set[:similar_distributions].each do |word, diff|
-                        li: a href="#results-#{word}"= word
-                dd: ul.unstyled
-                  - word_set[:histogram].each do |word, frequency|
-                    li
-                      span.badge class=badge_for_frequency(frequency) = frequency
-                      '
-                      = word
+      #results-pane.tab-pane.not-loaded
+        .loader
+          img src='/img/ajax_loader_gray_256.gif'
+          javascript:
+            $("a[data-toggle='tab'][href='#results-pane']").on('shown', function() {
+              if($('#results-pane').hasClass('not-loaded')) {
+                $('#results-pane').load("/designer/#{@module}/results-words");
+              }
+            });
