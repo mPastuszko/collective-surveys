@@ -64,10 +64,7 @@ h1.well Synonimy
               ' Instrukcja dla badanych
             fieldset.text-center
               textarea.instructions rows='8' name='instructions'
-                | Dziękujemy za wyrażenie chęci udziału w badaniu.
-                | &#x0D;Ankieta dotyczy podobieństwa słów i figur geometrycznych. Posłuży ona do stworzenia nowej metody badawczej.
-                | &#x0D;Ankieta jest anonimowa.
-                | &#x0D;&#x0D;Studenci Psychologii Stosowanej UJ
+                == slim :_instruction_default
             legend: h3
             fieldset.text-center
               button.btn.btn-primary.btn-large type='submit' Uruchom ankietę jako #{session[:username]}
