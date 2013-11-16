@@ -1,0 +1,35 @@
+.alert.alert-info
+  strong Jak to działa?
+  '  Każdy ankieter otrzymuje osobisty link, który rozsyła uczestnikom badania. Dzięki temu zebrane później wyniki można przypisać do konkretnego ankietera.
+- if @survey_link
+  form method='post' action="/designer/#{@module}/reset"
+    fieldset
+      legend: strong Twój osobisty link do ankiety
+      .alert
+        label Skopiuj poniższy link i wyślij go uczestnikom badania
+        input.span6 type='text' name='survey_link' value=@survey_link readonly=true
+    fieldset
+      legend Instrukcja dla badanych
+      textarea.instructions rows='8' name='instructions' readonly=true
+        == @survey_instructions || slim(:_instruction_default)
+    fieldset
+      legend Zarządzanie ankietą
+      button.btn.btn-danger type='submit' Wstrzymaj ankietę
+      .help-inline Uwaga: Wszystkie zebrane przez Ciebie dotychczas wyniki zostaną utracone.
+    javascript:
+      $(function() {
+        var selectSurveyLink = function() {
+            $(this).select();
+          }
+        $('input[name="survey_link"]').click(selectSurveyLink).trigger('click');
+      });
+- else
+  form.form-inline method='post' action="/designer/#{@module}/publish"
+    legend: h3
+      ' Instrukcja dla badanych
+    fieldset.text-center
+      textarea.instructions rows='8' name='instructions'
+        == slim :_instruction_default
+    legend: h3
+    fieldset.text-center
+      button.btn.btn-primary.btn-large type='submit' Uruchom ankietę jako #{session[:username]}

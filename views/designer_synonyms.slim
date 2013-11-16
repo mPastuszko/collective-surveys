@@ -38,36 +38,7 @@ h1.well Synonimy
               $('textarea[name="base_words"]').keyup(updateSaveButtonLabel).trigger('keyup');
             });
       #publish-pane.tab-pane
-        .alert.alert-info
-          strong Jak to działa?
-          '  Każdy ankieter otrzymuje osobisty link, który rozsyła uczestnikom badania. Dzięki temu zebrane później wyniki można przypisać do konkretnego ankietera.
-        - if @survey_link
-          form method='post' action='/designer/synonyms/reset'
-            fieldset
-              legend Twój osobisty link do ankiety
-              label Skopiuj poniższy link i wyślij go uczestnikom badania
-              input.span8 type='text' name='survey_link' value=@survey_link readonly=true
-            fieldset
-              legend Zarządzanie ankietą
-              button.btn.btn-danger type='submit' Wstrzymaj ankietę
-              .help-inline Uwaga: Wszystkie zebrane przez Ciebie dotychczas wyniki zostaną utracone.
-            javascript:
-              $(function() {
-                var selectSurveyLink = function() {
-                    $(this).select();
-                  }
-                $('input[name="survey_link"]').click(selectSurveyLink).trigger('click');
-              });
-        - else
-          form.form-inline method='post' action='/designer/synonyms/publish'
-            legend: h3
-              ' Instrukcja dla badanych
-            fieldset.text-center
-              textarea.instructions rows='8' name='instructions'
-                == slim :_instruction_default
-            legend: h3
-            fieldset.text-center
-              button.btn.btn-primary.btn-large type='submit' Uruchom ankietę jako #{session[:username]}
+        == slim :_designer_publish
       #results-pane.tab-pane.not-loaded
         .loader
           img src='/img/ajax_loader_gray_256.gif'

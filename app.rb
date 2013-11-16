@@ -134,6 +134,7 @@ get %r{/designer/(synonyms|homophones|figures)/results-words} do |m|
 end
 
 get %r{/designer/(synonyms|homophones|figures)} do |m|
+  @module = m.to_sym
   case m
   when 'synonyms', 'homophones'
     @base_words = db.get "#{m}:base_words"
@@ -144,6 +145,7 @@ get %r{/designer/(synonyms|homophones|figures)} do |m|
   session[m][:survey_id] = db.smembers("#{m}:surveys")
     .find {|s| db.get("survey:#{s}:surveyer_name") == session[:username] }
   @survey_link = session[m][:survey_id] && url("/survey/#{session[m][:survey_id]}")
+  @survey_instructions = session[m][:survey_id] && db.get("survey:#{session[m][:survey_id]}:instructions")
   slim "designer_#{m}".to_sym, :layout => :layout_designer
 end
 
