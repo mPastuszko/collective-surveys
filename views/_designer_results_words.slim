@@ -72,8 +72,13 @@ table.table
               - word_set[:similar_distributions].each do |word, diff|
                 li: a href="#results-#{word}"= word
         dd: ul.unstyled
+          - fas_first_6 = word_set[:fas_first_6].dup
           - word_set[:histogram].each do |word, frequency|
             li
               span.badge class=badge_for_frequency(frequency) = frequency
               '
               = word
+              - unless fas_first_6.empty?
+                span.fas
+                  span.muted= "FAS: "
+                  = fas_first_6.shift.round(2)

@@ -354,7 +354,8 @@ def results(kind, answers)
         base_word: word_set.first,
         histogram: answered_words_histogram,
         statistics: WordProcessor::statistics(answered_words_histogram),
-        statistics_first_6: WordProcessor::statistics(answered_words_histogram[0...6])
+        statistics_first_6: WordProcessor::statistics(answered_words_histogram[0...6]),
+        fas_first_6: WordProcessor::fas(answered_words_histogram[0...6])
       }
     end
 

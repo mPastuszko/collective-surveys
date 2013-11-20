@@ -81,4 +81,11 @@ module WordProcessor
   def self.ascii_form(text)
     text.tr(CharSubs[:source], CharSubs[:target])
   end
+
+  def self.fas(histogram)
+    sum = histogram
+      .map(&:last)
+      .inject(:+)
+    histogram.map {|w| w.last.to_f / sum }
+  end
 end
