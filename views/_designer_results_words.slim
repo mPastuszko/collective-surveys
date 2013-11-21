@@ -9,7 +9,7 @@
       th
     tbody
       tr.success
-        td: input type='checkbox' name='display_all' checked=true
+        td.toggle: input type='checkbox' name='display_all' checked=true
         td: span.lead: strong Wszystkie
         td: span.badge.badge-success: span.lead #{@answers[:finished].size}
         td: span.badge: span.lead #{@answers[:all].size}
