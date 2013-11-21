@@ -116,7 +116,8 @@ end
 
 get %r{/designer/(synonyms|homophones|figures)/results-words} do |m|
   @module = m.to_sym
-  @answers = answers(m)
+  display_filter = params[:display]
+  @answers = answers(m, display_filter)
   @results = results(m, @answers[:finished])
   @results = sort_results(@results, params[:sort] ||= 'alpha')
   @ages = @answers[:finished].map { |a| a[:age].to_i }.reject(&:zero?)
@@ -271,27 +272,32 @@ def figure_sets(source = "figures:figure_sets")
   end
 end
 
-def answers(kind)
+def answers(kind, display_filter = nil)
   answers = db.smembers("#{kind}:surveys")
     .map do |survey|
-      db.smembers("survey:#{survey}:answers")
-        .map do |answer|
-          {
-            id: answer,
-            surveyer: db.get("survey:#{survey}:surveyer_name"),
-            state: db.get("answer:#{answer}:state"),
-            kind: kind.to_s,
-            gender: db.get("answer:#{answer}:gender"),
-            age: db.get("answer:#{answer}:age"),
-            question: (case kind
-            when 'synonyms', 'homophones'
-              tmp = db.get("survey:#{survey}:base_words") and JSON.load(tmp).map(&:strip)
-            when 'figures'
-              db.smembers("survey:#{survey}:figure_sets")
-            end),
-            answer_raw: db.get("answer:#{answer}:answer")
+      surveyer = db.get("survey:#{survey}:surveyer_name")
+      if display_filter.nil? or display_filter[surveyer]
+        db.smembers("survey:#{survey}:answers")
+          .map { |answer|
+            {
+              id: answer,
+              surveyer: surveyer,
+              state: db.get("answer:#{answer}:state"),
+              kind: kind.to_s,
+              gender: db.get("answer:#{answer}:gender"),
+              age: db.get("answer:#{answer}:age"),
+              question: (case kind
+              when 'synonyms', 'homophones'
+                tmp = db.get("survey:#{survey}:base_words") and JSON.load(tmp).map(&:strip)
+              when 'figures'
+                db.smembers("survey:#{survey}:figure_sets")
+              end),
+              answer_raw: db.get("answer:#{answer}:answer")
+            }
           }
-        end
+      else
+        []
+      end
     end
     .flatten
     .sort {|a, b| a[:id] <=> b[:id] }

@@ -34,6 +34,18 @@ footer span {
   margin: 3em;
 }
 
+.context-loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -10px;
+  margin-top: -10px;
+}
+
+#surveyers .toggle {
+  position: relative;
+}
+
 .center.navbar .nav,
 .center.navbar .nav > li {
     float:none;
