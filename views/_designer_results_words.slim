@@ -111,7 +111,11 @@
               li
                 span.badge class=badge_for_frequency(frequency) = frequency
                 '
-                = word
+                label.checkbox.word
+                  = word
+                  span.merge-words
+                    input type='checkbox'
+                    button.merge.btn.btn-mini Połącz zaznaczone
                 - unless fas_first_6.empty?
                   span.fas
                     span.muted= "FAS: "

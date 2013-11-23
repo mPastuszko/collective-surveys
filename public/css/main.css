@@ -160,6 +160,32 @@ footer span {
   float: right;
 }
 
+.results .word {
+  display: inline;
+  padding-left: 0;
+}
+
+.results .merge-words input[type="checkbox"] {
+  float: none;
+  margin-left: .5em;
+  vertical-align: top;
+  visibility: hidden;
+}
+
+.results .merge-words input[type="checkbox"]:checked,
+.results .word:hover .merge-words input[type="checkbox"] {
+  visibility: visible;
+  opacity: 1;
+}
+
+.results .merge-words button {
+  margin-left: 1em;
+  visibility: hidden;
+}
+.results .word:hover .merge-words button {
+  visibility: visible;
+}
+
 fieldset .instructions {
   width: 90%;
 }
