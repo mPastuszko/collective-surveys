@@ -144,6 +144,18 @@ post %r{/designer/(synonyms|homophones)/merge-words} do |m|
   200
 end
 
+post %r{/designer/(synonyms|homophones)/split-words} do |m|
+  base_word = params[:base_word]
+  word = params[:word]
+  merged_words_set = JSON[db.get("#{m}:merged_words") || '{}']
+  merged_words = merged_words_set[base_word]
+  if merged_words
+    merged_words.delete_if {|ws| ws.include? word }
+    db.set("#{m}:merged_words", merged_words_set.to_json)
+  end
+  200
+end
+
 get %r{/designer/(synonyms|homophones|figures)} do |m|
   @module = m.to_sym
   case m

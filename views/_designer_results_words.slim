@@ -114,7 +114,7 @@
                     - tooltip_text = ([word[:word]] + word[:merged_words]).join(', ')
                     strong data-toggle="tooltip" title=tooltip_text = word[:word]
                     span.split-words
-                      button.split.btn.btn-mini Rozdziel
+                      button.split.btn.btn-mini data-word=word[:word] data-base_word=word_set[:base_word] Rozdziel
                   - else
                     = word[:word]
                     span.merge-words
@@ -127,13 +127,25 @@
     javascript:
       $('.merge-words button.merge').click(function(e) {
         var data = $('.merge-words input[name^="merge["]:checked').serialize();
-        var button = e.target;
+        var button = $(e.target);
         if(data) {
-          putLoaderIn(button);
-          $(button).prop('disabled', true);
+          putLoaderIn(button.get());
+          button.prop('disabled', true);
           $.post("/designer/#{@module}/merge-words", data, function() {
             reload_results(e);
           });
         }
+      });
+      $('.split-words button.split').click(function(e) {
+        var button = $(e.target);
+        var data = {
+          "word": button.attr('data-word'),
+          "base_word": button.attr('data-base_word')
+        };
+        putLoaderIn(button.get());
+        button.prop('disabled', true);
+        $.post("/designer/#{@module}/split-words", data, function() {
+          reload_results(e);
+        });
       });
       $('[data-toggle="tooltip"]').tooltip();

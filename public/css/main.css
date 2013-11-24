@@ -186,7 +186,9 @@ footer span {
 }
 
 .results .word:hover .merge-words button,
-.results .word:hover .split-words button {
+.results .word:hover .split-words button,
+.results .merge-words button[disabled],
+.results .split-words button[disabled] {
   visibility: visible;
 }
 
