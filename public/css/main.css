@@ -178,13 +178,15 @@ footer span {
   opacity: 1;
 }
 
-.results .merge-words button {
+.results .merge-words button,
+.results .split-words button {
   position: relative;
   margin-left: 1em;
   visibility: hidden;
 }
 
-.results .word:hover .merge-words button {
+.results .word:hover .merge-words button,
+.results .word:hover .split-words button {
   visibility: visible;
 }
 

@@ -53,6 +53,23 @@ module WordProcessor
       }
   end
 
+  def self.merge(histogram, merged_words)
+    result = histogram.dup
+    merged_words.each do |merge_set|
+      main, rest = merge_set.first, merge_set[1..-1]
+      main_pos = result.index {|h| h[:word] == main }
+      result[main_pos] = result[main_pos].dup
+      result[main_pos][:merged_words] ||= []
+      result[main_pos][:merged_words] += rest
+      rest.each do |w|
+        pos = result.index {|h| h[:word] == w }
+        result[main_pos][:frequency] += result[pos][:frequency]
+        result.delete_at(pos)
+      end
+    end
+    result.sort {|a, b| b[:frequency] <=> a[:frequency] }
+  end
+
   def self.histogram(elements)
     elements
       .reject(&:nil?)

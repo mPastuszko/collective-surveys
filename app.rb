@@ -358,6 +358,7 @@ def normalize_answers(kind, answers)
 end
 
 def results(kind, answers)
+  words_to_merge = JSON[db.get("#{kind}:merged_words") || '{}']
   results = normalize_answers(kind, answers)
     .transpose
     .slice(6..-1)
@@ -366,12 +367,13 @@ def results(kind, answers)
       answered_words_ascii = WordProcessor::normalize_national_chars(answered_words)
       answered_words_clean = WordProcessor::clean(answered_words_ascii)
       answered_words_histogram = WordProcessor::histogram(answered_words_clean)
+      merged_words_histogram = WordProcessor::merge(answered_words_histogram, words_to_merge[base_word] || [])
       {
         base_word: word_set.first,
-        histogram: answered_words_histogram,
-        statistics: WordProcessor::statistics(answered_words_histogram),
-        statistics_first_6: WordProcessor::statistics(answered_words_histogram[0...6]),
-        fas_first_6: WordProcessor::fas(answered_words_histogram[0...6])
+        histogram: merged_words_histogram,
+        statistics: WordProcessor::statistics(merged_words_histogram),
+        statistics_first_6: WordProcessor::statistics(merged_words_histogram[0...6]),
+        fas_first_6: WordProcessor::fas(merged_words_histogram[0...6])
       }
     end
 

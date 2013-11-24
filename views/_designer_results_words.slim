@@ -110,10 +110,16 @@
                 span.badge class=badge_for_frequency(word[:frequency]) = word[:frequency]
                 '
                 label.checkbox.word
-                  = word[:word]
-                  span.merge-words
-                    input type='checkbox' name="merge[#{word_set[:base_word]}][#{word[:word]}]"
-                    button.merge.btn.btn-mini Połącz zaznaczone
+                  - if word[:merged_words]
+                    - tooltip_text = ([word[:word]] + word[:merged_words]).join(', ')
+                    strong data-toggle="tooltip" title=tooltip_text = word[:word]
+                    span.split-words
+                      button.split.btn.btn-mini Rozdziel
+                  - else
+                    = word[:word]
+                    span.merge-words
+                      input type='checkbox' name="merge[#{word_set[:base_word]}][#{word[:word]}]"
+                      button.merge.btn.btn-mini Połącz zaznaczone
                 - unless fas_first_6.empty?
                   span.fas
                     span.muted= "FAS: "
@@ -130,3 +136,4 @@
           });
         }
       });
+      $('[data-toggle="tooltip"]').tooltip();
