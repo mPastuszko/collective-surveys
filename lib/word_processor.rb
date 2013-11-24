@@ -7,7 +7,7 @@ module WordProcessor
   }
 
   def self.statistics(histogram)
-    frequencies = histogram.map(&:last)
+    frequencies = histogram.map {|h| h[:frequency] }
     frequency_sample = frequencies
       .each_with_index
       .map { |freq, index| [index] * freq }
@@ -26,7 +26,7 @@ module WordProcessor
   def self.histograms_difference_matrix(word_sets, histogram_length)
     words = word_sets.map { |ws| ws[:base_word] }
     histogram_matrices = word_sets.inject({}) { |memo, ws|
-      histogram = ws[:histogram][0...histogram_length].map(&:last)
+      histogram = ws[:histogram][0...histogram_length].map {|h| h[:frequency] }
       histogram.fill(1, histogram.size...histogram_length)
       memo[ws[:base_word]] = Matrix[histogram]
       memo
@@ -57,8 +57,13 @@ module WordProcessor
     elements
       .reject(&:nil?)
       .inject(Hash.new(0)) { |counter, word| counter[word] += 1; counter }
-      .to_a
-      .sort {|a, b| b.last <=> a.last }
+      .map { |word, counter|
+        {
+          word: word,
+          frequency: counter
+        }
+      }
+      .sort {|a, b| b[:frequency] <=> a[:frequency] }
   end
 
   def self.normalize_national_chars(words)
@@ -84,8 +89,8 @@ module WordProcessor
 
   def self.fas(histogram)
     sum = histogram
-      .map(&:last)
+      .map {|h| h[:frequency] }
       .inject(:+)
-    histogram.map {|w| w.last.to_f / sum }
+    histogram.map {|h| h[:frequency].to_f / sum }
   end
 end
