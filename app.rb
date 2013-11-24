@@ -134,6 +134,16 @@ get %r{/designer/(synonyms|homophones|figures)/results-words} do |m|
   slim "_designer_results_words".to_sym, :layout => false
 end
 
+post %r{/designer/(synonyms|homophones)/merge-words} do |m|
+  merged_words = JSON[db.get("#{m}:merged_words") || '{}']
+  params[:merge].each_pair do |base_word, words|
+    merged_words[base_word] ||= []
+    merged_words[base_word] << words.keys if words.size > 1
+  end
+  db.set("#{m}:merged_words", merged_words.to_json)
+  200
+end
+
 get %r{/designer/(synonyms|homophones|figures)} do |m|
   @module = m.to_sym
   case m

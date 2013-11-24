@@ -36,21 +36,18 @@
   javascript:
     function reload_results(event) {
       var surveyers = $('#results-pane #surveyers');
-      set_loading_info(event.target);
       $('#results-pane').load(
         "/designer/#{@module}/results-words?sort=#{params[:sort] ||= 'alpha'}&" +
           $('input[name^="display["]').serialize(),
         null,
         function() {
           $('#results-pane #surveyers').replaceWith(surveyers);
-          $('#results-pane #surveyers .context-loader').remove();
+          $('#results-pane .context-loader').remove();
         });
-    }
-    function set_loading_info(element) {
-      $(element).after('<img src="/img/ajax_loader_gray_16.gif" class="context-loader">');
     }
     $('input[name="display_all"]').click(function(e) {
       $('input[name^="display["]').prop('checked', $(this).prop('checked'))
+      putLoaderAfter(e.target);
       reload_results(e);
     });
     $('input[name^="display["]').click(function(e) {
@@ -58,6 +55,7 @@
         return $(this).prop('checked')
       }).toArray().indexOf(false) == -1;
       $('input[name="display_all"]').prop('checked', all_selected);
+      putLoaderAfter(e.target);
       reload_results(e);
     });
 - if @answers[:finished].empty?
@@ -114,9 +112,21 @@
                 label.checkbox.word
                   = word
                   span.merge-words
-                    input type='checkbox'
+                    input type='checkbox' name="merge[#{word_set[:base_word]}][#{word}]"
                     button.merge.btn.btn-mini Połącz zaznaczone
                 - unless fas_first_6.empty?
                   span.fas
                     span.muted= "FAS: "
                     = fas_first_6.shift.round(2)
+    javascript:
+      $('.merge-words button.merge').click(function(e) {
+        var data = $('.merge-words input[name^="merge["]:checked').serialize();
+        var button = e.target;
+        if(data) {
+          putLoaderIn(button);
+          $(button).prop('disabled', true);
+          $.post("/designer/#{@module}/merge-words", data, function() {
+            reload_results(e);
+          });
+        }
+      });

@@ -44,6 +44,14 @@ function tabShown(event) {
   window.location.hash = tab_id;
 }
 
+function putLoaderAfter(element) {
+  $(element).after('<img src="/img/ajax_loader_gray_16.gif" class="context-loader">');
+}
+
+function putLoaderIn(element) {
+  $(element).append('<img src="/img/ajax_loader_gray_16.gif" class="context-loader">');
+}
+
 $(function() {
   activateTabByAnchor();
   $('form.questions input.answer').
