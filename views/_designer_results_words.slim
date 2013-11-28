@@ -133,6 +133,7 @@
           button.prop('disabled', true);
           $.post("/designer/#{@module}/merge-words", data, function() {
             reload_results(e);
+            $(window).off('beforeunload');
           });
         }
       });
@@ -146,6 +147,12 @@
         button.prop('disabled', true);
         $.post("/designer/#{@module}/split-words", data, function() {
           reload_results(e);
+          $(window).off('beforeunload');
+        });
+      });
+      $('.merge-words input[type=checkbox]').click(function() {
+        $(window).on('beforeunload', function() {
+          return "Zaznaczyłeś słowa, ale nie zatwierdziłeś zmian poprzez kliknięcie przycisku 'Połącz zaznaczone'.";
         });
       });
       $('[data-toggle="tooltip"]').tooltip();
