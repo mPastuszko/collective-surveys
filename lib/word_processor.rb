@@ -63,6 +63,7 @@ module WordProcessor
       result[main_pos][:merged_words] += rest
       rest.each do |w|
         pos = result.index {|h| h[:word] == w }
+        next unless pos
         result[main_pos][:frequency] += result[pos][:frequency]
         result.delete_at(pos)
       end
