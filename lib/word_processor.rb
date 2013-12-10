@@ -58,6 +58,7 @@ module WordProcessor
     merged_words.each do |merge_set|
       main, rest = merge_set.first, merge_set[1..-1]
       main_pos = result.index {|h| h[:word] == main }
+      next unless main_pos
       result[main_pos] = result[main_pos].dup
       result[main_pos][:merged_words] ||= []
       result[main_pos][:merged_words] += rest
