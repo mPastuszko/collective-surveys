@@ -106,11 +106,57 @@ post %r{/designer/(synonyms|homophones|figures)/import/verified$} do |m|
   redirect to("/designer/#{m}")
 end
 
-get %r{/designer/(synonyms|homophones|figures)/results-(finished|all).csv} do |m, subset|
+get %r{/designer/(synonyms|homophones|figures)/answers-(finished|all).csv} do |m, subset|
   content_type :csv
-  answers = answers(m)[subset.to_sym]
+  display_filter = params[:display]
+  answers = answers(m, display_filter)[subset.to_sym]
   normalize_answers(m, answers)
     .map { |row| row.map{|column| "\"#{column}\""}.join(';') }
+    .join($/)
+end
+
+get %r{/designer/(synonyms|homophones|figures)/results-(finished|all).csv} do |m, subset|
+  content_type :csv
+  display_filter = params[:display]
+  answers = answers(m, display_filter)[subset.to_sym]
+  results = results(m, answers)
+  results = sort_results(results, 'alpha')
+  spreadsheet = results
+    .inject([]) { |rows, word_set|
+      rows << [
+        [''] * 2,
+        'Odch. std.',
+        'Skośność',
+        'Kurtoza',
+        '',
+        (1..6).to_a.map {|i| "FAS #{i}" },
+        '',
+        (1..word_set[:similar_distributions].size).to_a.map {|i| "Podob. #{i}" },
+        '',
+        word_set[:histogram].map {|word| word[:frequency] }
+      ].flatten
+      rows << [
+        word_set[:base_word],
+        '',
+        word_set[:statistics_first_6][:standard_deviation].round(2),
+        word_set[:statistics_first_6][:skewness].round(2),
+        word_set[:statistics_first_6][:kurtosis].round(2),
+        '',
+        word_set[:fas_first_6].map {|e| e.round(2) },
+        '',
+        word_set[:similar_distributions].map(&:first),
+        '',
+        word_set[:histogram].map {|word| word[:word] }
+      ].flatten
+      rows
+    }
+  longest_word_set = spreadsheet.map(&:size).max
+  spreadsheet
+    .map { |word_set|
+      word_set.fill('', word_set.size...longest_word_set)
+    }
+    .transpose
+    .map { |row| row.map{|column| column.is_a?(Numeric) ? column.to_s.sub('.', ',') : "\"#{column}\"" }.join(';') }
     .join($/)
 end
 

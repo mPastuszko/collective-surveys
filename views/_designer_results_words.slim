@@ -14,16 +14,16 @@
         td: span.badge.badge-success: span.lead #{@answers[:finished].size}
         td: span.badge: span.lead #{@answers[:all].size}
         td: .btn-group.pull-right
-          a.btn href="/designer/#{@module}/results-finished.csv"
+          a.download.btn href="/designer/#{@module}/answers-finished.csv"
             i.icon-download-alt
             '  Pobierz
           a.btn.dropdown-toggle data-toggle='dropdown'
             span.caret
           ul.dropdown-menu
-            li: a href="/designer/#{@module}/results-finished.csv"
+            li: a.download href="/designer/#{@module}/answers-finished.csv"
               i.icon-ok
               '  Ukończone
-            li: a href="/designer/#{@module}/results-all.csv"
+            li: a.download href="/designer/#{@module}/answers-all.csv"
               i.icon-align-justify
               '  Wszystkie
       - @answers[:surveyers].each do |surveyer|
@@ -58,6 +58,13 @@
       putLoaderAfter(e.target);
       reload_results(e);
     });
+    $('a.download').click(function(e) {
+      var link = $(e.target);
+      var base_url = link.attr('href').split('?')[0];
+      var params = $('input[name^="display["]').serialize();
+      link.attr('href', base_url + '?' + params);
+      return true;
+    });
 - if @answers[:finished].empty?
   #answers
     .alert.alert-warning.alert-block.lead
@@ -76,7 +83,21 @@
         ' Mężczyźni – #{@men_percent}%
     .lead.text-center w wieku od #{@ages.min} do #{@ages.max} lat (średnio #{@avg_age})
   #answers
-    h2 Wyniki
+    h2
+      ' Wyniki
+      .btn-group.pull-right
+        a.download.btn href="/designer/#{@module}/results-finished.csv"
+          i.icon-download-alt
+          '  Pobierz
+        a.btn.dropdown-toggle data-toggle='dropdown'
+          span.caret
+        ul.dropdown-menu
+          li: a.download href="/designer/#{@module}/results-finished.csv"
+            i.icon-ok
+            '  Ukończone
+          li: a.download href="/designer/#{@module}/results-all.csv"
+            i.icon-align-justify
+            '  Wszystkie
     .well.well-small
       ' Sortuj:
       a.btn.btn-link href=url("/designer/#{@module}/#results") alfabetycznie
