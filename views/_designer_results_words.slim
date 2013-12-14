@@ -134,21 +134,32 @@
                   - if word[:merged_words]
                     - tooltip_text = ([word[:word]] + word[:merged_words]).join(', ')
                     strong data-toggle="tooltip" title=tooltip_text = word[:word]
-                    span.split-words
-                      button.split.btn.btn-mini data-word=word[:word] data-base_word=word_set[:base_word] Rozdziel
                   - else
                     = word[:word]
-                    span.merge-words
-                      input type='checkbox' name="merge[#{word_set[:base_word]}][#{word[:word]}]"
-                      button.merge.btn.btn-mini Połącz zaznaczone
+                    input.select-word type='checkbox' name="merge[#{word_set[:base_word]}][#{word[:word]}]"
+                  .actions.btn-group  
+                    button.btn.btn-mini.dropdown-toggle data-toggle="dropdown" href="#"
+                      i.icon-cog
+                      span.caret
+                    ul.dropdown-menu
+                      - if word[:merged_words]
+                        li: a.split-words href='#' data-word=word[:word] data-base_word=word_set[:base_word] Rozdziel słowa
+                      - else
+                        li: a.merge-words href='#' Połącz zaznaczone słowa
+                      li.divider
+                      - if word[:disabled]
+                        li: a.enable-word href='#' Uwzględniaj słowo
+                      - else
+                        li: a.disable-word href='#' Nie uwzględniaj słowa
                 - unless fas_first_6.empty?
                   span.fas
                     span.muted= "FAS: "
                     = fas_first_6.shift.round(2)
     javascript:
-      $('.merge-words button.merge').click(function(e) {
-        var data = $('.merge-words input[name^="merge["]:checked').serialize();
-        var button = $(e.target);
+      $('a.merge-words').click(function(e) {
+        e.preventDefault();
+        var data = $('input.select-word:checked').serialize();
+        var button = $(e.target).parents('.actions').find('button');
         if(data) {
           putLoaderIn(button.get());
           button.prop('disabled', true);
@@ -158,7 +169,8 @@
           });
         }
       });
-      $('.split-words button.split').click(function(e) {
+      $('a.split-words').click(function(e) {
+        e.preventDefault();
         var button = $(e.target);
         var data = {
           "word": button.attr('data-word'),
@@ -171,9 +183,9 @@
           $(window).off('beforeunload');
         });
       });
-      $('.merge-words input[type=checkbox]').click(function() {
+      $('input.select-word').click(function() {
         $(window).on('beforeunload', function() {
-          return "Zaznaczyłeś słowa, ale nie zatwierdziłeś zmian poprzez kliknięcie przycisku 'Połącz zaznaczone'.";
+          return "Zaznaczyłeś słowa, ale nie zatwierdziłeś zmian poprzez kliknięcie przycisku 'Połącz zaznaczone słowa'.";
         });
       });
       $('[data-toggle="tooltip"]').tooltip();

@@ -165,30 +165,27 @@ footer span {
   padding-left: 0;
 }
 
-.results .merge-words input[type="checkbox"] {
+.results .word .select-word {
   float: none;
   margin-left: .5em;
   vertical-align: top;
   visibility: hidden;
 }
 
-.results .merge-words input[type="checkbox"]:checked,
-.results .word:hover .merge-words input[type="checkbox"] {
+.results .word .select-word:checked,
+.results .word:hover .select-word {
   visibility: visible;
   opacity: 1;
 }
 
-.results .merge-words button,
-.results .split-words button {
+.results .word .actions button {
   position: relative;
   margin-left: 1em;
   visibility: hidden;
 }
 
-.results .word:hover .merge-words button,
-.results .word:hover .split-words button,
-.results .merge-words button[disabled],
-.results .split-words button[disabled] {
+.results .word:hover .actions button,
+.results .word .actions button[disabled] {
   visibility: visible;
 }
 
