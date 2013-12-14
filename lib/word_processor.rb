@@ -72,6 +72,13 @@ module WordProcessor
     result.sort {|a, b| b[:frequency] <=> a[:frequency] }
   end
 
+  def self.disable(histogram, disabled_words)
+    histogram.map { |h|
+      h[:disabled] = true if disabled_words.include?(h[:word])
+      h
+    }
+  end
+
   def self.histogram(elements)
     elements
       .reject(&:nil?)

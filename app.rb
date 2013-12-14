@@ -202,6 +202,22 @@ post %r{/designer/(synonyms|homophones)/split-words} do |m|
   200
 end
 
+post %r{/designer/(synonyms|homophones)/disable-enable-word} do |m|
+  p params
+  base_word = params[:base_word]
+  word = params[:word]
+  disable = (params[:disable] == 'true')
+  disabled_words_set = JSON[db.get("#{m}:disabled_words") || '{}']
+  disabled_words = (disabled_words_set[base_word] ||= [])
+  if disable
+    disabled_words << word
+  else
+    disabled_words.delete(word)
+  end
+  db.set("#{m}:disabled_words", disabled_words_set.to_json)
+  200
+end
+
 get %r{/designer/(synonyms|homophones|figures)} do |m|
   @module = m.to_sym
   case m
@@ -417,6 +433,7 @@ end
 
 def results(kind, answers)
   words_to_merge = JSON[db.get("#{kind}:merged_words") || '{}']
+  disabled_words = JSON[db.get("#{kind}:disabled_words") || '{}']
   results = normalize_answers(kind, answers)
     .transpose
     .slice(6..-1)
@@ -426,12 +443,14 @@ def results(kind, answers)
       answered_words_clean = WordProcessor::clean(answered_words_ascii)
       answered_words_histogram = WordProcessor::histogram(answered_words_clean)
       merged_words_histogram = WordProcessor::merge(answered_words_histogram, words_to_merge[base_word] || [])
+      all_words_histogram = WordProcessor::disable(merged_words_histogram, disabled_words[base_word] || [])
+      enabled_words_histogram = all_words_histogram.reject {|w| w[:disabled] }
       {
         base_word: word_set.first,
-        histogram: merged_words_histogram,
-        statistics: WordProcessor::statistics(merged_words_histogram),
-        statistics_first_6: WordProcessor::statistics(merged_words_histogram[0...6]),
-        fas_first_6: WordProcessor::fas(merged_words_histogram[0...6])
+        histogram: all_words_histogram,
+        statistics: WordProcessor::statistics(enabled_words_histogram),
+        statistics_first_6: WordProcessor::statistics(enabled_words_histogram[0...6]),
+        fas_first_6: WordProcessor::fas(enabled_words_histogram[0...6])
       }
     end
 

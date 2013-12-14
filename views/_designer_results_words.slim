@@ -130,7 +130,7 @@
               li
                 span.badge class=badge_for_frequency(word[:frequency]) = word[:frequency]
                 '
-                label.checkbox.word
+                label.checkbox.word class=(word[:disabled] ? 'word-disabled' : '')
                   - if word[:merged_words]
                     - tooltip_text = ([word[:word]] + word[:merged_words]).join(', ')
                     strong data-toggle="tooltip" title=tooltip_text = word[:word]
@@ -148,18 +148,21 @@
                         li: a.merge-words href='#' Połącz zaznaczone słowa
                       li.divider
                       - if word[:disabled]
-                        li: a.enable-word href='#' Uwzględniaj słowo
+                        li: a.enable-word href='#' data-word=word[:word] data-base_word=word_set[:base_word] Uwzględniaj słowo
                       - else
-                        li: a.disable-word href='#' Nie uwzględniaj słowa
-                - unless fas_first_6.empty?
+                        li: a.disable-word href='#' data-word=word[:word] data-base_word=word_set[:base_word] Nie uwzględniaj słowa
+                - unless fas_first_6.empty? or word[:disabled]
                   span.fas
                     span.muted= "FAS: "
                     = fas_first_6.shift.round(2)
     javascript:
+      function findWordActionsButton(action) {
+        return action.parents('.actions').find('button');
+      }
       $('a.merge-words').click(function(e) {
         e.preventDefault();
         var data = $('input.select-word:checked').serialize();
-        var button = $(e.target).parents('.actions').find('button');
+        var button = findWordActionsButton($(e.target));
         if(data) {
           putLoaderIn(button.get());
           button.prop('disabled', true);
@@ -171,10 +174,11 @@
       });
       $('a.split-words').click(function(e) {
         e.preventDefault();
-        var button = $(e.target);
+        var action = $(e.target);
+        var button = findWordActionsButton(action);
         var data = {
-          "word": button.attr('data-word'),
-          "base_word": button.attr('data-base_word')
+          "word": action.attr('data-word'),
+          "base_word": action.attr('data-base_word')
         };
         putLoaderIn(button.get());
         button.prop('disabled', true);
@@ -187,5 +191,24 @@
         $(window).on('beforeunload', function() {
           return "Zaznaczyłeś słowa, ale nie zatwierdziłeś zmian poprzez kliknięcie przycisku 'Połącz zaznaczone słowa'.";
         });
+      });
+      $('a.enable-word, a.disable-word').click(function(e) {
+        e.preventDefault();
+        var action = $(e.target);
+        var button = findWordActionsButton(action);
+        var word = action.parents('.word')
+        var data = {
+          "word": action.attr('data-word'),
+          "base_word": action.attr('data-base_word'),
+          "disable": ! word.hasClass('word-disabled')
+        };
+        if(data) {
+          putLoaderIn(button.get());
+          button.prop('disabled', true);
+          $.post("/designer/#{@module}/disable-enable-word", data, function() {
+            reload_results(e);
+            $(window).off('beforeunload');
+          });
+        }
       });
       $('[data-toggle="tooltip"]').tooltip();
