@@ -146,7 +146,7 @@ get %r{/designer/(synonyms|homophones|figures)/results-(finished|all).csv} do |m
         '',
         word_set[:similar_distributions].map(&:first),
         '',
-        word_set[:histogram].map {|word| word[:word] }
+        word_set[:enabled_words_histogram].map {|word| word[:word] }
       ].flatten
       rows
     }
@@ -448,6 +448,7 @@ def results(kind, answers)
       {
         base_word: word_set.first,
         histogram: all_words_histogram,
+        enabled_words_histogram: enabled_words_histogram,
         statistics: WordProcessor::statistics(enabled_words_histogram),
         statistics_first_6: WordProcessor::statistics(enabled_words_histogram[0...6]),
         fas_first_6: WordProcessor::fas(enabled_words_histogram[0...6])
