@@ -133,7 +133,7 @@ get %r{/designer/(synonyms|homophones|figures)/results-(finished|all).csv} do |m
         '',
         (1..word_set[:similar_distributions].size).to_a.map {|i| "Podob. #{i}" },
         '',
-        word_set[:histogram].map {|word| word[:frequency] }
+        word_set[:enabled_words_histogram].map {|word| word[:frequency] }
       ].flatten
       rows << [
         word_set[:base_word],
