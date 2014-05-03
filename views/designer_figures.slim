@@ -21,107 +21,34 @@ h1.well Figury
           legend: h3 Dodaj zestaw
           fieldset.alert.alert-block
             .row
-              .span8.text-center
+              .span2
+              .span4.text-center
                 .figures-input
-                  label Figura bazowa:
+                  label Wybierz figury:
                   ' 
-                  input.input-mini type='file' name='base_figure' accept='image/png'
-                .figures-input
-                  label Pozostałe figury:
-                  ' 
-                  input type='file' name='other_figures[]' multiple=true accept='image/png'
-              .span1
-                button.btn.btn-primary.btn-large type='submit' Dodaj zestaw
+                  input type='file' name='figures[]' multiple=true accept='image/png'
+              .span2
+                button.btn.btn-primary.btn-medium type='submit' Dodaj zestaw
         legend: h3
           ' Zestawy figur
-          small Figura bazowa znajduje się na pierwszym miejscu każdego zestawu.
-        - @figure_sets.each do |figure_set|
-          - @figure_num = (@figure_num || 0) + 1
-          form.form-inline method='post' action="/designer/figures/plan/#{figure_set[:id]}"
+        - @figure_sets.each.with_index do |figure_set, figure_num|
+          form.figure-set.form-inline method='post' action="/designer/figures/plan/#{figure_set[:id]}"
             input type='hidden' name='_method' value='delete'
-            label.span1: h3 #{@figure_num}.
-            ul.thumbnails.thumbnails-small.well.span8
-              li: img.thumbnail.figure.base-figure.img-rounded.img-polaroid src=url(figure_set[:base_figure])
-              - figure_set[:other_figures].each do |figure|
-                li: img.thumbnail.figure.img-rounded src=url(figure)
-            button.btn.btn-danger.delete-figure-set.span type='submit' Usuń
+            h4
+              button.btn.btn-danger.pull-right type='submit' Usuń
+              ' Zestaw #{figure_num + 1}
+            ul.thumbnails
+              - figure_set[:figures].each do |figure|
+                li.figure.thumbnail
+                  img src=url(figure)
       #publish-pane.tab-pane
-        .alert.alert-info
-          strong Jak to działa?
-          '  Każdy ankieter otrzymuje osobisty link, który rozsyła uczestnikom badania. Dzięki temu zebrane później wyniki można przypisać do konkretnego ankietera.
-        - if @survey_link
-          form method='post' action='/designer/figures/reset'
-            fieldset
-              legend Twój osobisty link do ankiety
-              label Skopiuj poniższy link i wyślij go uczestnikom badania
-              input.span8 type='text' name='survey_link' value=@survey_link readonly=true
-            fieldset
-              legend Zarządzanie ankietą
-              button.btn.btn-danger type='submit' Wstrzymaj ankietę
-              .help-inline Uwaga: Wszystkie zebrane przez Ciebie dotychczas wyniki zostaną utracone.
-            javascript:
-              $(function() {
-                var selectSurveyLink = function() {
-                    $(this).select();
-                  }
-                $('input[name="survey_link"]').click(selectSurveyLink).trigger('click');
-              });
-        - else
-          form.form-inline method='post' action='/designer/figures/publish'
-            legend: h3
-              ' Instrukcja dla badanych
-            fieldset.text-center
-              textarea.instructions rows='8' name='instructions'
-                == slim :_instruction_default
-            legend: h3
-            fieldset.text-center
-              button.btn.btn-primary.btn-large type='submit' Uruchom ankietę jako #{session[:username]}
-      #results-pane.tab-pane
-        h2 Ankiety
-        table.table
-          thead: tr
-            th 
-            th.lead Ukończone
-            th.lead Rozpoczęte
-            th
-          tbody
-            tr.success
-              td: span.lead: strong Ogółem
-              td: span.badge.badge-success: span.lead #{@answers[:finished].size}
-              td: span.badge: span.lead #{@answers[:all].size}
-              td: .btn-group.pull-right
-                / a.btn href='/designer/synonyms/results-finished.csv'
-                /   i.icon-download-alt
-                /   '  Pobierz
-                / a.btn.dropdown-toggle data-toggle='dropdown'
-                /   span.caret
-                / ul.dropdown-menu
-                /   li: a href='/designer/synonyms/results-finished.csv'
-                /     i.icon-ok
-                /     '  Ukończone
-                /   li: a href='/designer/synonyms/results-all.csv'
-                /     i.icon-align-justify
-                /     '  Wszystkie
-            - @answers[:surveyers].each do |surveyer|
-              tr
-                td: span.lead= surveyer[:name]
-                td: span.badge.badge-success: span.lead #{surveyer[:finished].size}
-                td: span.badge: span.lead #{surveyer[:all].size}
-                td
-        - if @answers[:finished].empty?
-          .alert.alert-warning.alert-block.lead
-            strong Brak wyników... 
-            ' Jeszcze nikt z badanych nie ukończył wypełniać ankiety.
-        - else
-          h2 Badani
-          .vspace1
-          .genders.progress
-            - @women_percent = (@genders[:female] * 100.0 / @genders[:all]).round
-            - @men_percent = (@genders[:male] * 100.0 / @genders[:all]).round
-            .bar.bar-info style="width: #{@women_percent}%"
-              ' Kobiety – #{@women_percent}%
-            .bar.bar-warning style="width: #{@men_percent}%"
-              ' Mężczyźni – #{@men_percent}%
-          .lead.text-center w wieku od #{@ages.min} do #{@ages.max} lat (średnio #{@avg_age})
-          h2 Wyniki
-          .alert.alert-warning.alert-block.lead W budowie...
+        == slim :_designer_publish
+      #results-pane.tab-pane.not-loaded
+        .loader
+          img src='/img/ajax_loader_gray_256.gif'
+          javascript:
+            $("a[data-toggle='tab'][href='#results-pane']").on('shown', function() {
+              if($('#results-pane').hasClass('not-loaded')) {
+                $('#results-pane').load("/designer/#{@module}/results-figures?sort=#{params[:sort] ||= 'alpha'}");
+              }
+            });

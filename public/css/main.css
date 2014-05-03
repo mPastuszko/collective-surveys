@@ -91,12 +91,6 @@ footer span {
   height: 4em;
 }
 
-.figure {
-  width: 128px;
-  height: 128px;
-  margin: 1em 0.5em;
-}
-
 .rating {
   margin: 0.5em;
   padding: 3em 0.5em;
@@ -112,26 +106,37 @@ footer span {
   vertical-align: middle;
 }
 
-.thumbnails-small > li > img {
-  width: 64px;
-  height: 64px;
+.figure-set h4 {
+  padding: 30px 5px 20px 5px;
+  font-weight: normal;
 }
 
-.thumbnails-small > li {
-  margin: 0.4em;
+.figure-set .thumbnails {
+  margin-left: 0;
 }
 
-.base-figure {
-  box-shadow: 0 0 0 2px #0070FF;
+.figure-set .figure {
+  position: relative;
+  margin-left: 5px;
+  margin-bottom: 5px;
+  padding: 1px;
+  width: 184px;
+  height: 184px;
 }
 
-.delete-figure-set {
-  margin: 1em;
+.figure-set .figure img {
+  max-width: 184px;
+  max-height: 184px;
+  position: absolute;
+  margin: auto;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
 }
 
 .genders {
   height: 3em;
-
 }
 
 .genders .bar {

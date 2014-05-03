@@ -160,7 +160,7 @@ get %r{/designer/(synonyms|homophones|figures)/results-(finished|all).csv} do |m
     .join($/)
 end
 
-get %r{/designer/(synonyms|homophones|figures)/results-words} do |m|
+get %r{/designer/(synonyms|homophones)/results-words} do |m|
   @module = m.to_sym
   display_filter = params[:display]
   @answers = answers(m, display_filter)
@@ -244,22 +244,18 @@ post %r{/designer/(synonyms|homophones)/plan} do |m|
 end
 
 post '/designer/figures/plan' do
-  return redirect to("/designer/figures#plan") unless params[:base_figure] and params[:other_figures].last
+  return redirect to("/designer/figures#plan") unless params[:figures].last
   id = db.incr "figures:figure_set:id"
 
   figure_set_path = File.join(settings.figures_path, id.to_s)
   FileUtils.mkdir_p(figure_set_path)
 
-  File.open(figure_path(id, params[:base_figure][:filename]), 'w') do |file|
-    file.write(params[:base_figure][:tempfile].read)
-  end
-  db.set "figures:figure_set:#{id}:base_figure", params[:base_figure][:filename]
-  params[:other_figures].each {|figure|
+  params[:figures].each do |figure|
     File.open(figure_path(id, figure[:filename]), 'w') do |file|
       file.write(figure[:tempfile].read)
     end
-    db.sadd "figures:figure_set:#{id}:other_figures", figure[:filename]
-  }
+    db.sadd "figures:figure_set:#{id}:figures", figure[:filename]
+  end
   db.sadd "figures:figure_sets", id
   redirect to("/designer/figures#plan")
 end
@@ -348,8 +344,7 @@ def figure_sets(source = "figures:figure_sets")
   db.smembers(source).sort.map do |id|
     {
       id: id,
-      base_figure: "/figure/#{id}/" + db.get("figures:figure_set:#{id}:base_figure"),
-      other_figures: db.smembers("figures:figure_set:#{id}:other_figures")
+      figures: db.smembers("figures:figure_set:#{id}:figures")
         .map { |figure| "/figure/#{id}/#{figure}" }
         .sort
     }
