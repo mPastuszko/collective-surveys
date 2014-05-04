@@ -15,11 +15,11 @@ require_relative 'lib/survey_answer.rb'
 require_relative 'lib/word_processor.rb'
 
 configure do
-  enable :sessions
+  use Rack::Session::Cookie, :expire_after => 60*60*24*30, #30 days in seconds
+                             :secret => File.read('session.secret')
   set :protection, :except => [:frame_options, :ip_spoofing]
   raise 'Session secret key not fond. Run `rake session.secret` to generate one.' \
     unless File.exists?('session.secret')
-  set :session_secret, File.read('session.secret')
   set :password_hash, File.read('password.secret')
   set :db, Redis.new(YAML.load_file('db.yml'))
   set :figures_path, File.join('upload', 'figures')
