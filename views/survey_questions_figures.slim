@@ -1,25 +1,35 @@
-.hero-unit
-  h2 Krok 1 z 2
-  p
-    ' Poniżej znajdują się pary figur geometrycznych. Dla każdej pary oceń na skali 1–5 jak bardzo figury z pary są do siebie podobne.
+form.questions.figure-set.form-inline method='post'
+  - if @answer.question_num < @data[:figure_sets].size - 1
+    input type='hidden' name='state' value=@answer.state
+  h2 Zestaw #{@answer.question_num + 1} z #{@data[:figure_sets].size}
+  .alert.alert-info
+    strong  Zmęczony?
+    '  W każdej chwili możesz przerwać badanie i kontynuować je później. Wystarczy, że powrócisz na tę stronę.
+  h3 1. Zaznacz figurę najbardziej reprezentatywną dla całego zestawu:
+  - figure_set = @data[:figure_sets][@answer.question_num]
+  ul.thumbnails
+    - figure_set[:figures].each do |figure|
+      li.figure.thumbnail
+        input.answer type="radio" id=figure[:name] name="answer[#{figure_set[:id]}][base]" value=figure[:name]
+        label for=figure[:name]
+          img src=url(figure[:url])
+  / form.questions method='post'
+  /   - @data[:figure_sets].each do |figure_set|
+  /     - @figure_set_num = (@figure_set_num || 0) + 1
+  /     fieldset
+  /       legend: h3 Zestaw #{@figure_set_num}
+  /       - @figure_num = 0
+  /       - figure_set[:other_figures].each do |figure|
+  /         - @figure_num += 1
+  /         fieldset
+  /           img.figure.img-rounded src=url(figure_set[:base_figure])
+  /           img.figure.img-rounded src=url(figure)
+  /           span.rating.well
+  /             span niepodobne
+  /             - (1..5).each do |rating|
+  /               input.answer type='radio' name="answer[#{figure_set[:id]}][#{@figure_num}]" value=rating
+  /             span podobne
+  /       .vspace4
   .vspace2
-  form.questions method='post'
-    - @data[:figure_sets].each do |figure_set|
-      - @figure_set_num = (@figure_set_num || 0) + 1
-      fieldset
-        legend: h3 Zestaw #{@figure_set_num}
-        - @figure_num = 0
-        - figure_set[:other_figures].each do |figure|
-          - @figure_num += 1
-          fieldset
-            img.figure.img-rounded src=url(figure_set[:base_figure])
-            img.figure.img-rounded src=url(figure)
-            span.rating.well
-              span niepodobne
-              - (1..5).each do |rating|
-                input.answer type='radio' name="answer[#{figure_set[:id]}][#{@figure_num}]" value=rating
-              span podobne
-        .vspace4
-    .vspace2
-    .text-center
-      button.continue.btn.btn-primary.btn-large type='submit' disabled=true Dalej
+  .text-center
+    button.continue.btn.btn-primary.btn-large type='submit' disabled=true Dalej

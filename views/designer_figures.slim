@@ -40,7 +40,7 @@ h1.well Figury
             ul.thumbnails
               - figure_set[:figures].each do |figure|
                 li.figure.thumbnail
-                  img src=url(figure)
+                  img src=url(figure[:url]) title=figure[:name]
       #publish-pane.tab-pane
         == slim :_designer_publish
       #results-pane.tab-pane.not-loaded

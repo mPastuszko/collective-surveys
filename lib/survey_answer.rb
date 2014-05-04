@@ -12,16 +12,25 @@ class SurveyAnswer
     @db.get "answer:#{@answer_id}:state"
   end
 
+  def question_num
+    @db.get("answer:#{@answer_id}:question_num") || 0
+  end
+
   def kind
     @db.get "survey:#{@survey_id}:kind"
   end
 
   def update(data)
-    @db.set "answer:#{@answer_id}:answer", data[:answer].to_json if data[:answer]
+    if data[:answer]
+      ans = JSON.load(@db.get("answer:#{@answer_id}:answer"))
+      ans.update(data[:answer])
+      @db.set "answer:#{@answer_id}:answer", ans.to_json
+    end
     @db.set "answer:#{@answer_id}:gender", data[:gender] if data[:gender]
     @db.set "answer:#{@answer_id}:age", data[:age] if data[:age]
 
     @db.set "answer:#{@answer_id}:state", (data[:state] || new_state(state))
+    @db.set "answer:#{@answer_id}:question_num", data[:question_num] if data[:question_num]
   end
 
   protected

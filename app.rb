@@ -283,10 +283,10 @@ get '/survey/:id' do |survey_id|
   not_found unless db.exists("survey:#{survey_id}:surveyer_name")
   session[:survey] ||= {}
   answer_id = session[:survey][survey_id]
-  answer = SurveyAnswer.new(db, survey_id, answer_id)
+  @answer = SurveyAnswer.new(db, survey_id, answer_id)
   @data = survey_data(survey_id)
-  session[:survey][survey_id] = answer.id
-  slim "survey_#{answer.state}".to_sym, :layout => :layout_survey
+  session[:survey][survey_id] = @answer.id
+  slim "survey_#{@answer.state}".to_sym, :layout => :layout_survey
 end
 
 post '/survey/:id' do |survey_id|
@@ -345,8 +345,14 @@ def figure_sets(source = "figures:figure_sets")
     {
       id: id,
       figures: db.smembers("figures:figure_set:#{id}:figures")
-        .map { |figure| "/figure/#{id}/#{figure}" }
-        .sort
+        .map { |figure|
+          p figure
+          {
+            name: figure,
+            url: "/figure/#{id}/#{figure}"
+          }
+        }
+        .sort { |f1, f2| f1[:name] <=> f2[:name] }
     }
   end
 end
