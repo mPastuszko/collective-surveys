@@ -37,7 +37,7 @@
     function reload_results(event) {
       var surveyers = $('#results-pane #surveyers');
       $('#results-pane').load(
-        "/designer/#{@module}/results-words?sort=#{params[:sort] ||= 'alpha'}&" +
+        "/designer/#{@module}/results-part?sort=#{params[:sort] ||= 'alpha'}&" +
           $('input[name^="display["]').serialize(),
         null,
         function() {

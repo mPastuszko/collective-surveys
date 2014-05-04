@@ -119,8 +119,8 @@ get %r{/designer/(synonyms|homophones|figures)/results-(finished|all).csv} do |m
   content_type :csv
   display_filter = params[:display]
   answers = answers(m, display_filter)[subset.to_sym]
-  results = results(m, answers)
-  results = sort_results(results, 'alpha')
+  results = word_results(m, answers)
+  results = sort_word_results(results, 'alpha')
   spreadsheet = results
     .inject([]) { |rows, word_set|
       rows << [
@@ -160,12 +160,16 @@ get %r{/designer/(synonyms|homophones|figures)/results-(finished|all).csv} do |m
     .join($/)
 end
 
-get %r{/designer/(synonyms|homophones)/results-words} do |m|
+get %r{/designer/(synonyms|homophones|figures)/results-part} do |m|
   @module = m.to_sym
   display_filter = params[:display]
   @answers = answers(m, display_filter)
-  @results = results(m, @answers[:finished])
-  @results = sort_results(@results, params[:sort] ||= 'alpha')
+  @results = case m
+    when 'synonyms', 'homophones'
+      sort_word_results(word_results(m, @answers[:finished]), params[:sort] ||= 'alpha')
+    when 'figures'
+      figure_results(@answers[:finished])
+    end
   @ages = @answers[:finished].map { |a| a[:age].to_i }.reject(&:zero?)
   @avg_age = (@ages.inject(:+).to_f / @ages.size)
     .round(2)
@@ -177,7 +181,13 @@ get %r{/designer/(synonyms|homophones)/results-words} do |m|
       counter[a] += 1; counter
     }
   @genders[:all] = @genders.values.inject(:+)
-  slim "_designer_results_words".to_sym, :layout => false
+  results_part = case m
+    when 'synonyms', 'homophones'
+      'words'
+    when 'figures'
+      'figures'
+    end
+  slim "_designer_results_#{results_part}".to_sym, :layout => false
 end
 
 post %r{/designer/(synonyms|homophones)/merge-words} do |m|
@@ -432,7 +442,7 @@ def normalize_answers(kind, answers)
   end
 end
 
-def results(kind, answers)
+def word_results(kind, answers)
   words_to_merge = JSON[db.get("#{kind}:merged_words") || '{}']
   disabled_words = JSON[db.get("#{kind}:disabled_words") || '{}']
   results = normalize_answers(kind, answers)
@@ -465,11 +475,15 @@ def results(kind, answers)
   results
 end
 
+def figure_results(answers)
+
+end
+
 def questions(answers)
   answers.inject(Set.new) {|questions, a| questions.merge(a[:question]) }
 end
 
-def sort_results(results, criterion)
+def sort_word_results(results, criterion)
   if criterion
     results.sort { |a, b|
       b[:statistics_first_6][criterion.to_sym] <=> a[:statistics_first_6][criterion.to_sym]

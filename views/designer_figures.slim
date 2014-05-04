@@ -49,6 +49,6 @@ h1.well Figury
           javascript:
             $("a[data-toggle='tab'][href='#results-pane']").on('shown', function() {
               if($('#results-pane').hasClass('not-loaded')) {
-                $('#results-pane').load("/designer/#{@module}/results-figures?sort=#{params[:sort] ||= 'alpha'}");
+                $('#results-pane').load("/designer/#{@module}/results-part}");
               }
             });

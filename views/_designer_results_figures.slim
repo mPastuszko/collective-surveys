@@ -1,0 +1,102 @@
+#surveyers
+  h2 Ankiety
+  table.table
+    thead: tr
+      th
+      th 
+      th.lead Ukończone
+      th.lead Rozpoczęte
+      th
+    tbody
+      tr.success
+        td.toggle: input type='checkbox' name='display_all' checked=true
+        td: span.lead: strong Wszystkie
+        td: span.badge.badge-success: span.lead #{@answers[:finished].size}
+        td: span.badge: span.lead #{@answers[:all].size}
+        td: .btn-group.pull-right
+          a.download.btn href="/designer/#{@module}/answers-finished.csv"
+            i.icon-download-alt
+            '  Pobierz
+          a.btn.dropdown-toggle data-toggle='dropdown'
+            span.caret
+          ul.dropdown-menu
+            li: a.download href="/designer/#{@module}/answers-finished.csv"
+              i.icon-ok
+              '  Ukończone
+            li: a.download href="/designer/#{@module}/answers-all.csv"
+              i.icon-align-justify
+              '  Wszystkie
+      - @answers[:surveyers].each do |surveyer|
+        tr
+          td.toggle: input type='checkbox' name="display[#{surveyer[:name]}]" checked=true
+          td: span.lead= surveyer[:name]
+          td: span.badge.badge-success: span.lead #{surveyer[:finished].size}
+          td: span.badge: span.lead #{surveyer[:all].size}
+          td
+  javascript:
+    function reload_results(event) {
+      var surveyers = $('#results-pane #surveyers');
+      $('#results-pane').load(
+        "/designer/#{@module}/results-part?" +
+          $('input[name^="display["]').serialize(),
+        null,
+        function() {
+          $('#results-pane #surveyers').replaceWith(surveyers);
+          $('#results-pane .context-loader').remove();
+        });
+    }
+    $('input[name="display_all"]').click(function(e) {
+      $('input[name^="display["]').prop('checked', $(this).prop('checked'))
+      putLoaderAfter(e.target);
+      reload_results(e);
+    });
+    $('input[name^="display["]').click(function(e) {
+      var all_selected = $('input[name^="display["]').map(function(){
+        return $(this).prop('checked')
+      }).toArray().indexOf(false) == -1;
+      $('input[name="display_all"]').prop('checked', all_selected);
+      putLoaderAfter(e.target);
+      reload_results(e);
+    });
+    $('a.download').click(function(e) {
+      var link = $(e.target);
+      var base_url = link.attr('href').split('?')[0];
+      var params = $('input[name^="display["]').serialize();
+      link.attr('href', base_url + '?' + params);
+      return true;
+    });
+- if @answers[:finished].empty?
+  #answers
+    .alert.alert-warning.alert-block.lead
+      strong Brak wyników... 
+      ' Jeszcze nikt z badanych nie ukończył wypełniać ankiety.
+- else
+  #respondents
+    h2 Badani
+    .vspace1
+    .genders.progress
+      - @women_percent = (@genders[:female] * 100.0 / @genders[:all]).round
+      - @men_percent = (@genders[:male] * 100.0 / @genders[:all]).round
+      .bar.bar-info style="width: #{@women_percent}%"
+        ' Kobiety – #{@women_percent}%
+      .bar.bar-warning style="width: #{@men_percent}%"
+        ' Mężczyźni – #{@men_percent}%
+    .lead.text-center w wieku od #{@ages.min} do #{@ages.max} lat (średnio #{@avg_age})
+  #answers
+    h2
+      ' Wyniki
+      .btn-group.pull-right
+        a.download.btn href="/designer/#{@module}/results-finished.csv"
+          i.icon-download-alt
+          '  Pobierz
+        a.btn.dropdown-toggle data-toggle='dropdown'
+          span.caret
+        ul.dropdown-menu
+          li: a.download href="/designer/#{@module}/results-finished.csv"
+            i.icon-ok
+            '  Ukończone
+          li: a.download href="/designer/#{@module}/results-all.csv"
+            i.icon-align-justify
+            '  Wszystkie
+    dl.dl-horizontal.results
+      
