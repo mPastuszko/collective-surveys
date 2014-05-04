@@ -16,6 +16,10 @@ html.no-js
     link rel="stylesheet" href="/css/bootstrap-sortable.css"
     link rel="stylesheet" href="/css/main.css"
     script src="/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"
+    - if settings.production?
+      script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"
+    javascript:
+      window.jQuery || document.write('<script src="/js/vendor/jquery-1.9.1.min.js"><\/script>')
   body
     /![if lt IE 7]
       | <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
@@ -38,10 +42,6 @@ html.no-js
         span: a href='http://twitter.github.com/bootstrap/index.html' Twitter Bootstrap
         span: a href='http://www.sinatrarb.com/' Sinatra
     /! /container
-    - if settings.production?
-      script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"
-    javascript:
-      window.jQuery || document.write('<script src="/js/vendor/jquery-1.9.1.min.js"><\/script>')
     script src="/js/vendor/bootstrap.min.js"
     script src="/js/vendor/bootstrap-sortable.js"
     script src="/js/vendor/jade.js"

@@ -92,8 +92,8 @@ footer span {
 }
 
 .rating {
-  margin: 0.5em;
-  padding: 3em 0.5em;
+  margin: 1em 0;
+  /*padding: 3em 0.5em;*/
 }
 
 .rating span {
@@ -106,14 +106,25 @@ footer span {
   vertical-align: middle;
 }
 
+.rating .rate {
+  display: inline-block;
+}
+
+.rating .rate label {
+  display: block;
+  text-align: center;
+  margin: 0;
+}
+
 .figure-set h3,
 .figure-set h4 {
-  padding: 30px 5px 20px 5px;
+  padding: 20px 5px 0px;
   font-weight: normal;
 }
 
 .figure-set .thumbnails {
   margin-left: 0;
+  padding: 20px 0;
 }
 
 .figure-set .figure {
@@ -136,14 +147,18 @@ footer span {
   bottom: 0px;
 }
 
+.figure-set .figure.base-figure label {
+  outline: 3px solid #C09853 !important;
+}
+
 .figure-set .figure label {
   display:inline-block;
   width: 100%;
   height: 100%;
 }
 
-.figure-set .figure label:hover {
-  outline: 1px solid #08C;  
+.figure-set .figure:hover label {
+  outline: 1px solid #08C;
 }
 
 .figure-set .figure input[type=radio] {

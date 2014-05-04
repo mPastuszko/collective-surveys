@@ -13,7 +13,7 @@ class SurveyAnswer
   end
 
   def question_num
-    @db.get("answer:#{@answer_id}:question_num") || 0
+    (@db.get("answer:#{@answer_id}:question_num") || 0).to_i
   end
 
   def kind
@@ -22,7 +22,7 @@ class SurveyAnswer
 
   def update(data)
     if data[:answer]
-      ans = JSON.load(@db.get("answer:#{@answer_id}:answer"))
+      ans = JSON.load(@db.get("answer:#{@answer_id}:answer") || '{}')
       ans.update(data[:answer])
       @db.set "answer:#{@answer_id}:answer", ans.to_json
     end

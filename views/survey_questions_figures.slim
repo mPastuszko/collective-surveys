@@ -1,18 +1,100 @@
 form.questions.figure-set.form-inline method='post'
   - if @answer.question_num < @data[:figure_sets].size - 1
     input type='hidden' name='state' value=@answer.state
+    input type='hidden' name='question_num' value=(@answer.question_num + 1)
   h2 Zestaw #{@answer.question_num + 1} z #{@data[:figure_sets].size}
   .alert.alert-info
     strong  Zmęczony?
     '  W każdej chwili możesz przerwać badanie i kontynuować je później. Wystarczy, że powrócisz na tę stronę.
-  h3 1. Zaznacz figurę najbardziej reprezentatywną dla całego zestawu:
   - figure_set = @data[:figure_sets][@answer.question_num]
-  ul.thumbnails
-    - figure_set[:figures].each do |figure|
-      li.figure.thumbnail
-        input.answer type="radio" id=figure[:name] name="answer[#{figure_set[:id]}][base]" value=figure[:name]
-        label for=figure[:name]
-          img src=url(figure[:url])
+  fieldset.base-figure
+    h3
+      ' 1. Zaznacz figurę
+      strong najbardziej reprezentatywną
+      |  dla całego zestawu:
+    ul.thumbnails
+      - figure_set[:figures].each do |figure|
+        li.figure.thumbnail
+          input.answer type="radio" id="base_#{figure[:name]}" name="answer[#{figure_set[:id]}][base]" value=figure[:name]
+          label for="base_#{figure[:name]}"
+            img src=url(figure[:url])
+    javascript:
+      $(function() {
+        $('fieldset.base-figure input').change(function() {
+          $('fieldset.similar-figure input, fieldset.different-figure input')
+            .prop('checked', false)
+            .prop('disabled', false)
+            .parent().removeClass('base-figure');
+
+          var figure_name = $(this).attr('id').substring(5);
+          $('fieldset.similar-figure input[id="similar_' + figure_name + '"], ' +
+            'fieldset.different-figure input[id="different_' + figure_name + '"]')
+            .prop('disabled', true)
+            .parent()
+            .addClass('base-figure');
+        });
+      });
+  fieldset.similar-figure
+    h3 
+      ' 2. Zaznacz figurę
+      strong najbardziej podobną do figury reprezentatywnej
+      |  (
+      span.text-warning brązowej
+      | ):
+    ul.thumbnails
+      - figure_set[:figures].each do |figure|
+        li.figure.thumbnail
+          input.answer type="radio" id="similar_#{figure[:name]}" name="answer[#{figure_set[:id]}][similar]" value=figure[:name]
+          label for="similar_#{figure[:name]}"
+            img src=url(figure[:url])
+  fieldset
+    h4 Jak bardzo zaznaczona powyżej figura jest podobna do figury reprezentatywnej?
+    .rating
+      span
+        ' bardzo
+        strong różna
+      - (1..6).each do |rating|
+        span.rate
+          label for="similar_rating_#{rating}"= rating
+          input.answer type='radio' id="similar_rating_#{rating}" name="answer[#{figure_set[:id]}][similar_rating]" value=rating
+      span
+        ' bardzo
+        strong podobna
+  fieldset
+    h4 Na czym polega podobieństwo między tymi figurami?
+    input.answer.input-xxlarge type="text" name="answer[#{figure_set[:id]}][similar_explanation]" placeholder="Wpisz wyjaśnienie..."
+  fieldset.different-figure
+    h3
+      ' 3. Zaznacz figurę
+      strong najbardziej różną od figury reprezentatywnej
+      |  (
+      span.text-warning brązowej
+      | ):
+    ul.thumbnails
+      - figure_set[:figures].each do |figure|
+        li.figure.thumbnail
+          input.answer type="radio" id="different_#{figure[:name]}" name="answer[#{figure_set[:id]}][different]" value=figure[:name]
+          label for="different_#{figure[:name]}"
+            img src=url(figure[:url])
+  fieldset
+    h4 Jak bardzo zaznaczona powyżej figura jest podobna do figury reprezentatywnej?
+    .rating
+      span
+        ' bardzo
+        strong różna
+      - (1..6).each do |rating|
+        span.rate
+          label for="different_rating_#{rating}"= rating
+          input.answer type='radio' id="different_rating_#{rating}" name="answer[#{figure_set[:id]}][different_rating]" value=rating
+      span
+        ' bardzo
+        strong podobna
+  fieldset
+    h4 Na czym polega różnica między tymi figurami?
+    input.answer.input-xxlarge type="text" name="answer[#{figure_set[:id]}][different_explanation]" placeholder="Wpisz wyjaśnienie..."
+  fieldset
+    h3 4. Czy figury z tego zestawu coś Ci przypominają?
+    input.input-xxlarge type="text" name="answer[#{figure_set[:id]}][association]" placeholder="Wpisz skojarzenie lub pozostaw pole puste..."
   / form.questions method='post'
   /   - @data[:figure_sets].each do |figure_set|
   /     - @figure_set_num = (@figure_set_num || 0) + 1
