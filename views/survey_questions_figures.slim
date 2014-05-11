@@ -9,8 +9,8 @@ form.questions.figure-set.form-inline method='post'
   - figure_set = @data[:figure_sets][@answer.question_num]
   fieldset.base-figure
     h3
-      ' 1. Zaznacz figurę
-      strong najbardziej reprezentatywną
+      ' 1. Zaznacz (kliknij) figurę
+      strong najbardziej typową
       |  dla całego zestawu:
     ul.thumbnails
       - figure_set[:figures].each do |figure|
@@ -36,11 +36,11 @@ form.questions.figure-set.form-inline method='post'
       });
   fieldset.similar-figure
     h3 
-      ' 2. Zaznacz figurę
-      strong najbardziej podobną do figury reprezentatywnej
-      |  (
-      span.text-warning brązowej
-      | ):
+      ' 2. Zaznacz (kliknij) figurę
+      strong najbardziej podobną do figury typowej
+      |  (w 
+      span.text-warning style="color: #FF9E35;" pomarańczowej
+      |  ramce):
     ul.thumbnails
       - figure_set[:figures].each do |figure|
         li.figure.thumbnail
@@ -48,11 +48,11 @@ form.questions.figure-set.form-inline method='post'
           label for="similar_#{figure[:name]}"
             img src=url(figure[:url])
   fieldset
-    h4 Jak bardzo zaznaczona powyżej figura jest podobna do figury reprezentatywnej?
+    h4 Jak bardzo zaznaczona powyżej figura jest podobna do figury typowej?
     .rating
       span
         ' bardzo
-        strong różna
+        strong niepodobna
       - (1..6).each do |rating|
         span.rate
           label for="similar_rating_#{rating}"= rating
@@ -65,11 +65,11 @@ form.questions.figure-set.form-inline method='post'
     input.answer.input-xxlarge type="text" name="answer[#{figure_set[:id]}][similar_explanation]" placeholder="Wpisz wyjaśnienie..."
   fieldset.different-figure
     h3
-      ' 3. Zaznacz figurę
-      strong najbardziej różną od figury reprezentatywnej
-      |  (
-      span.text-warning brązowej
-      | ):
+      ' 3. Zaznacz (kliknij) figurę
+      strong najbardziej niepodobną do figury typowej
+      |  (w 
+      span.text-warning style="color: #FF9E35;" pomarańczowej
+      |  ramce):
     ul.thumbnails
       - figure_set[:figures].each do |figure|
         li.figure.thumbnail
@@ -77,11 +77,11 @@ form.questions.figure-set.form-inline method='post'
           label for="different_#{figure[:name]}"
             img src=url(figure[:url])
   fieldset
-    h4 Jak bardzo zaznaczona powyżej figura jest podobna do figury reprezentatywnej?
+    h4 Jak bardzo zaznaczona powyżej figura jest podobna do figury typowej?
     .rating
       span
         ' bardzo
-        strong różna
+        strong niepodobna
       - (1..6).each do |rating|
         span.rate
           label for="different_rating_#{rating}"= rating
@@ -94,7 +94,7 @@ form.questions.figure-set.form-inline method='post'
     input.answer.input-xxlarge type="text" name="answer[#{figure_set[:id]}][different_explanation]" placeholder="Wpisz wyjaśnienie..."
   fieldset
     h3 4. Czy figury z tego zestawu coś Ci przypominają?
-    input.input-xxlarge type="text" name="answer[#{figure_set[:id]}][association]" placeholder="Wpisz skojarzenie lub pozostaw pole puste..."
+    input.input-xxlarge.answer type="text" name="answer[#{figure_set[:id]}][association]" placeholder="Wpisz skojarzenie..."
   / form.questions method='post'
   /   - @data[:figure_sets].each do |figure_set|
   /     - @figure_set_num = (@figure_set_num || 0) + 1
