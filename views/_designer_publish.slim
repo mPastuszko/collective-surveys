@@ -11,7 +11,7 @@
     fieldset
       legend Instrukcja dla badanych
       textarea.instructions rows='8' name='instructions' readonly=true
-        == @survey_instructions || slim(:_instruction_default)
+        == @survey_instructions || slim("_instruction_default_#{@module}".to_sym)
     fieldset
       legend Zarządzanie ankietą
       button.btn.btn-danger type='submit' Wstrzymaj ankietę
@@ -29,7 +29,7 @@
       ' Instrukcja dla badanych
     fieldset.text-center
       textarea.instructions rows='8' name='instructions'
-        == slim :_instruction_default
+        == slim "_instruction_default_#{@module}".to_sym
     legend: h3
     fieldset.text-center
       button.btn.btn-primary.btn-large type='submit' Uruchom ankietę jako #{session[:username]}
