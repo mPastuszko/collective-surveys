@@ -7,6 +7,7 @@ form.questions.figure-set.form-inline method='post'
     strong  Zmęczony?
     '  W każdej chwili możesz przerwać badanie i kontynuować je później. Wystarczy, że powrócisz na tę stronę.
   - figure_set = @data[:figure_sets][@answer.question_num]
+  - figure_set[:figures].shuffle!
   fieldset.base-figure
     h3
       ' 1. Zaznacz (kliknij) figurę
