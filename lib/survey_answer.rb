@@ -20,6 +20,10 @@ class SurveyAnswer
     @db.get "survey:#{@survey_id}:kind"
   end
 
+  def answer_data
+    JSON.load(@db.get("answer:#{@answer_id}:answer") || '{}')
+  end
+
   def update(data)
     if data[:answer]
       ans = JSON.load(@db.get("answer:#{@answer_id}:answer") || '{}')

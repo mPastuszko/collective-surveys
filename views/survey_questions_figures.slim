@@ -2,11 +2,12 @@ form.questions.figure-set.form-inline method='post'
   - if @answer.question_num < @data[:figure_sets].size - 1
     input type='hidden' name='state' value=@answer.state
     input type='hidden' name='question_num' value=(@answer.question_num + 1)
-  h2 Zestaw #{@answer.question_num + 1} z #{@data[:figure_sets].size}
+  h2 Etap #{(@answer.question_num / 10) + 1} z #{@data[:figure_sets].size / 10 + (@data[:figure_sets].size % 10 != 0 ? 1 : 0)}
   .alert.alert-info
     strong  Zmęczony?
     '  W każdej chwili możesz przerwać badanie i kontynuować je później. Wystarczy, że powrócisz na tę stronę.
-  - figure_set = @data[:figure_sets][@answer.question_num]
+  - answered_figure_sets = @answer.answer_data.keys
+  - figure_set = @data[:figure_sets].sample while figure_set.nil? or answered_figure_sets.include?(figure_set[:id])
   - figure_set[:figures].shuffle!
   fieldset.base-figure
     h3
