@@ -119,6 +119,7 @@ footer span {
 .figure-set h3,
 .figure-set h4 {
   padding: 20px 5px 0px;
+  line-height: 30px;
   font-weight: normal;
 }
 

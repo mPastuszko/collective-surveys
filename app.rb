@@ -356,7 +356,6 @@ def figure_sets(source = "figures:figure_sets")
       id: id,
       figures: db.smembers("figures:figure_set:#{id}:figures")
         .map { |figure|
-          p figure
           {
             name: figure,
             url: "/figure/#{id}/#{figure}"
