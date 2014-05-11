@@ -46,10 +46,10 @@ class SurveyAnswer
   def new_state(previous_state = nil)
     case previous_state
     when 'welcome'
-      "questions_#{kind}"
-    when /questions/
       'demographic_info'
     when 'demographic_info'
+      "questions_#{kind}"
+    when /questions/
       'finished'
     else
       'welcome'
