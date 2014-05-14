@@ -16,6 +16,15 @@ class SurveyAnswer
     (@db.get("answer:#{@answer_id}:question_num") || 0).to_i
   end
 
+  def next_question_num
+    if question_num >= 0
+      nqn = question_num + 1
+      nqn % 10 == 0 ? -nqn : nqn
+    else
+      -question_num
+    end
+  end
+
   def kind
     @db.get "survey:#{@survey_id}:kind"
   end

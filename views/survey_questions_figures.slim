@@ -1,119 +1,113 @@
 form.questions.figure-set.form-inline method='post'
   - if @answer.question_num < @data[:figure_sets].size - 1
     input type='hidden' name='state' value=@answer.state
-    input type='hidden' name='question_num' value=(@answer.question_num + 1)
-  h2 Etap #{(@answer.question_num / 10) + 1} z #{@data[:figure_sets].size / 10 + (@data[:figure_sets].size % 10 != 0 ? 1 : 0)}
-  .alert.alert-info
-    strong  Zmęczony?
-    '  W każdej chwili możesz przerwać badanie i kontynuować je później. Wystarczy, że powrócisz na tę stronę.
-  - answered_figure_sets = @answer.answer_data.keys
-  - figure_set = @data[:figure_sets].sample while figure_set.nil? or answered_figure_sets.include?(figure_set[:id])
-  - figure_set[:figures].shuffle!
-  fieldset.base-figure
-    h3
-      ' 1. Zaznacz (kliknij) figurę
-      strong najbardziej typową
-      |  dla całego zestawu:
-    ul.thumbnails
-      - figure_set[:figures].each do |figure|
-        li.figure.thumbnail
-          input.answer type="radio" id="base_#{figure[:name]}" name="answer[#{figure_set[:id]}][base]" value=figure[:name]
-          label for="base_#{figure[:name]}"
-            img src=url(figure[:url])
-    javascript:
-      $(function() {
-        $('fieldset.base-figure input').change(function() {
-          $('fieldset.similar-figure input, fieldset.different-figure input')
-            .prop('checked', false)
-            .prop('disabled', false)
-            .parent().removeClass('base-figure');
+  input type='hidden' name='question_num' value=@answer.next_question_num
+  - step = @answer.question_num.abs / 10
+  - steps = @data[:figure_sets].size / 10 + (@data[:figure_sets].size % 10 != 0 ? 1 : 0)
+  - if @answer.question_num < 0
+    h2 Gratulacje, ukończyłeś etap #{step} z #{steps}
+    .vspace2
+    .meme.text-center
+      img src="/img/memes/#{step}.jpg"
+    .vspace2
+    .text-center
+      button.continue.btn.btn-primary.btn-large type='submit' Dalej
+  - else
+    h2 Etap #{step} z #{steps}
+    .alert.alert-info
+      strong  Zmęczony?
+      '  W każdej chwili możesz przerwać badanie i kontynuować je później. Wystarczy, że powrócisz na tę stronę.
+    - answered_figure_sets = @answer.answer_data.keys
+    - figure_set = @data[:figure_sets].sample while figure_set.nil? or answered_figure_sets.include?(figure_set[:id])
+    - figure_set[:figures].shuffle!
+    fieldset.base-figure
+      h3
+        ' 1. Zaznacz (kliknij) figurę
+        strong najbardziej typową
+        |  dla całego zestawu:
+      ul.thumbnails
+        - figure_set[:figures].each do |figure|
+          li.figure.thumbnail
+            input.answer type="radio" id="base_#{figure[:name]}" name="answer[#{figure_set[:id]}][base]" value=figure[:name]
+            label for="base_#{figure[:name]}"
+              img src=url(figure[:url])
+      javascript:
+        $(function() {
+          $('fieldset.base-figure input').change(function() {
+            $('fieldset.similar-figure input, fieldset.different-figure input')
+              .prop('checked', false)
+              .prop('disabled', false)
+              .parent().removeClass('base-figure');
 
-          var figure_name = $(this).attr('id').substring(5);
-          $('fieldset.similar-figure input[id="similar_' + figure_name + '"], ' +
-            'fieldset.different-figure input[id="different_' + figure_name + '"]')
-            .prop('disabled', true)
-            .parent()
-            .addClass('base-figure');
+            var figure_name = $(this).attr('id').substring(5);
+            $('fieldset.similar-figure input[id="similar_' + figure_name + '"], ' +
+              'fieldset.different-figure input[id="different_' + figure_name + '"]')
+              .prop('disabled', true)
+              .parent()
+              .addClass('base-figure');
+          });
         });
-      });
-  fieldset.similar-figure
-    h3 
-      ' 2. Zaznacz (kliknij) figurę
-      strong najbardziej podobną do figury typowej
-      |  (w 
-      span.text-warning style="color: #FF9E35;" pomarańczowej
-      |  ramce):
-    ul.thumbnails
-      - figure_set[:figures].each do |figure|
-        li.figure.thumbnail
-          input.answer type="radio" id="similar_#{figure[:name]}" name="answer[#{figure_set[:id]}][similar]" value=figure[:name]
-          label for="similar_#{figure[:name]}"
-            img src=url(figure[:url])
-  fieldset
-    h4 Jak bardzo zaznaczona powyżej figura jest podobna do figury typowej?
-    .rating
-      span
-        ' bardzo
-        strong niepodobna
-      - (1..6).each do |rating|
-        span.rate
-          label for="similar_rating_#{rating}"= rating
-          input.answer type='radio' id="similar_rating_#{rating}" name="answer[#{figure_set[:id]}][similar_rating]" value=rating
-      span
-        ' bardzo
-        strong podobna
-  fieldset
-    h4 Na czym polega podobieństwo między tymi figurami?
-    input.answer.input-xxlarge type="text" name="answer[#{figure_set[:id]}][similar_explanation]" placeholder="Wpisz wyjaśnienie..."
-  fieldset.different-figure
-    h3
-      ' 3. Zaznacz (kliknij) figurę
-      strong najbardziej niepodobną do figury typowej
-      |  (w 
-      span.text-warning style="color: #FF9E35;" pomarańczowej
-      |  ramce):
-    ul.thumbnails
-      - figure_set[:figures].each do |figure|
-        li.figure.thumbnail
-          input.answer type="radio" id="different_#{figure[:name]}" name="answer[#{figure_set[:id]}][different]" value=figure[:name]
-          label for="different_#{figure[:name]}"
-            img src=url(figure[:url])
-  fieldset
-    h4 Jak bardzo zaznaczona powyżej figura jest podobna do figury typowej?
-    .rating
-      span
-        ' bardzo
-        strong niepodobna
-      - (1..6).each do |rating|
-        span.rate
-          label for="different_rating_#{rating}"= rating
-          input.answer type='radio' id="different_rating_#{rating}" name="answer[#{figure_set[:id]}][different_rating]" value=rating
-      span
-        ' bardzo
-        strong podobna
-  fieldset
-    h4 Na czym polega różnica między tymi figurami?
-    input.answer.input-xxlarge type="text" name="answer[#{figure_set[:id]}][different_explanation]" placeholder="Wpisz wyjaśnienie..."
-  fieldset
-    h3 4. Czy figury z tego zestawu coś Ci przypominają?
-    input.input-xxlarge.answer type="text" name="answer[#{figure_set[:id]}][association]" placeholder="Wpisz skojarzenie..."
-  / form.questions method='post'
-  /   - @data[:figure_sets].each do |figure_set|
-  /     - @figure_set_num = (@figure_set_num || 0) + 1
-  /     fieldset
-  /       legend: h3 Zestaw #{@figure_set_num}
-  /       - @figure_num = 0
-  /       - figure_set[:other_figures].each do |figure|
-  /         - @figure_num += 1
-  /         fieldset
-  /           img.figure.img-rounded src=url(figure_set[:base_figure])
-  /           img.figure.img-rounded src=url(figure)
-  /           span.rating.well
-  /             span niepodobne
-  /             - (1..5).each do |rating|
-  /               input.answer type='radio' name="answer[#{figure_set[:id]}][#{@figure_num}]" value=rating
-  /             span podobne
-  /       .vspace4
-  .vspace2
-  .text-center
-    button.continue.btn.btn-primary.btn-large type='submit' disabled=true Dalej
+    fieldset.similar-figure
+      h3 
+        ' 2. Zaznacz (kliknij) figurę
+        strong najbardziej podobną do figury typowej
+        |  (w 
+        span.text-warning style="color: #FF9E35;" pomarańczowej
+        |  ramce):
+      ul.thumbnails
+        - figure_set[:figures].each do |figure|
+          li.figure.thumbnail
+            input.answer type="radio" id="similar_#{figure[:name]}" name="answer[#{figure_set[:id]}][similar]" value=figure[:name]
+            label for="similar_#{figure[:name]}"
+              img src=url(figure[:url])
+    fieldset
+      h4 Jak bardzo zaznaczona powyżej figura jest podobna do figury typowej?
+      .rating
+        span
+          ' bardzo
+          strong niepodobna
+        - (1..6).each do |rating|
+          span.rate
+            label for="similar_rating_#{rating}"= rating
+            input.answer type='radio' id="similar_rating_#{rating}" name="answer[#{figure_set[:id]}][similar_rating]" value=rating
+        span
+          ' bardzo
+          strong podobna
+    fieldset
+      h4 Na czym polega podobieństwo między tymi figurami?
+      input.answer.input-xxlarge type="text" name="answer[#{figure_set[:id]}][similar_explanation]" placeholder="Wpisz wyjaśnienie..."
+    fieldset.different-figure
+      h3
+        ' 3. Zaznacz (kliknij) figurę
+        strong najbardziej niepodobną do figury typowej
+        |  (w 
+        span.text-warning style="color: #FF9E35;" pomarańczowej
+        |  ramce):
+      ul.thumbnails
+        - figure_set[:figures].each do |figure|
+          li.figure.thumbnail
+            input.answer type="radio" id="different_#{figure[:name]}" name="answer[#{figure_set[:id]}][different]" value=figure[:name]
+            label for="different_#{figure[:name]}"
+              img src=url(figure[:url])
+    fieldset
+      h4 Jak bardzo zaznaczona powyżej figura jest podobna do figury typowej?
+      .rating
+        span
+          ' bardzo
+          strong niepodobna
+        - (1..6).each do |rating|
+          span.rate
+            label for="different_rating_#{rating}"= rating
+            input.answer type='radio' id="different_rating_#{rating}" name="answer[#{figure_set[:id]}][different_rating]" value=rating
+        span
+          ' bardzo
+          strong podobna
+    fieldset
+      h4 Na czym polega różnica między tymi figurami?
+      input.answer.input-xxlarge type="text" name="answer[#{figure_set[:id]}][different_explanation]" placeholder="Wpisz wyjaśnienie..."
+    fieldset
+      h3 4. Czy figury z tego zestawu coś Ci przypominają?
+      input.input-xxlarge.answer type="text" name="answer[#{figure_set[:id]}][association]" placeholder="Wpisz skojarzenie..."
+    .vspace2
+    .text-center
+      button.continue.btn.btn-primary.btn-large type='submit' disabled=true Dalej

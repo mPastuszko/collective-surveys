@@ -170,6 +170,13 @@ footer span {
   outline: 3px solid #08C;
 }
 
+.meme img {
+  padding: 2px;
+  border: 4px solid #000;
+  border-radius: 8px;
+  box-shadow: 0 0 4px #888;
+}
+
 .genders {
   height: 3em;
 }
