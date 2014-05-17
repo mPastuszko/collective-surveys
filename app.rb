@@ -351,7 +351,9 @@ def figure_path(set_id, filename)
 end
 
 def figure_sets(source = "figures:figure_sets")
-  db.smembers(source).sort.map do |id|
+  db.smembers(source).sort { |f1, f2|
+    f1.to_i <=> f2.to_i
+  }.map do |id|
     {
       id: id,
       figures: db.smembers("figures:figure_set:#{id}:figures")
