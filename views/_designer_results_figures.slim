@@ -33,18 +33,31 @@
           td: span.badge.badge-success: span.lead #{surveyer[:finished].size}
           td: span.badge: span.lead #{surveyer[:all].size}
           td
+  form.form.subset
+    label.radio.inline: strong Wyświetlaj:
+    label.radio.inline.toggle
+      input type='radio' name='subset' checked=true value='finished'
+      '  Tylko ukończone
+    label.radio.inline.toggle
+      input type='radio' name='subset' value='all'
+      '  Ukończone oraz rozpoczęte
   javascript:
     function reload_results(event) {
       var surveyers = $('#results-pane #surveyers');
       $('#results-pane').load(
         "/designer/#{@module}/results-part?" +
-          $('input[name^="display["]').serialize(),
+          $('input[name^="display["]').serialize() + '&' +
+          $('input[name="subset"]').serialize(),
         null,
         function() {
           $('#results-pane #surveyers').replaceWith(surveyers);
           $('#results-pane .context-loader').remove();
         });
     }
+    $('input[name="subset"]').click(function(e) {
+      putLoaderAfter(e.target);
+      reload_results(e);
+    });
     $('input[name="display_all"]').click(function(e) {
       $('input[name^="display["]').prop('checked', $(this).prop('checked'))
       putLoaderAfter(e.target);
@@ -98,5 +111,4 @@
           li: a.download href="/designer/#{@module}/results-all.csv"
             i.icon-align-justify
             '  Wszystkie
-    dl.dl-horizontal.results
       
