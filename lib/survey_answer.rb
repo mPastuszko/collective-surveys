@@ -1,4 +1,6 @@
 class SurveyAnswer
+  QuestionsPerStage = 10
+
   attr_reader :survey_id, :answer_id
   alias :id :answer_id
 
@@ -19,7 +21,7 @@ class SurveyAnswer
   def next_question_num
     if question_num >= 0
       nqn = question_num + 1
-      nqn % 10 == 0 ? -nqn : nqn
+      nqn % QuestionsPerStage == 0 ? -nqn : nqn
     else
       -question_num
     end

@@ -2,8 +2,9 @@ form.questions.figure-set.form-inline method='post'
   - if @answer.question_num < @data[:figure_sets].size - 1
     input type='hidden' name='state' value=@answer.state
   input type='hidden' name='question_num' value=@answer.next_question_num
-  - step = @answer.question_num.abs / 10
-  - steps = @data[:figure_sets].size / 10 + (@data[:figure_sets].size % 10 != 0 ? 1 : 0)
+  - step = @answer.question_num.abs / SurveyAnswer::QuestionsPerStage
+  - steps = @data[:figure_sets].size / SurveyAnswer::QuestionsPerStage + \
+    (@data[:figure_sets].size % SurveyAnswer::QuestionsPerStage != 0 ? 1 : 0)
   - if @answer.question_num < 0
     h2 Gratulacje, ukończyłeś etap #{step} z #{steps}
     .vspace2
@@ -13,7 +14,7 @@ form.questions.figure-set.form-inline method='post'
     .text-center
       button.continue.btn.btn-primary.btn-large type='submit' Dalej
   - else
-    h2 Etap #{step} z #{steps}
+    h2 Etap #{step + 1} z #{steps}
     .alert.alert-info
       strong  Zmęczony?
       '  W każdej chwili możesz przerwać badanie i kontynuować je później. Wystarczy, że powrócisz na tę stronę.
