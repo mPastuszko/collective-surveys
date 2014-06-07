@@ -15,6 +15,7 @@ function validateQuestionsForm() {
   var valid = validateForm(form);
 
   form.find('button.continue').prop('disabled', !valid);
+  form.find('.fill-before-continue-info').css('visibility', valid ? 'hidden' : 'visible');
 }
 
 function validateForm(form) {

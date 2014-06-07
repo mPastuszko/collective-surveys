@@ -40,12 +40,25 @@ form.questions.figure-set.form-inline method='post'
               .prop('disabled', false)
               .parent().removeClass('base-figure');
 
-            var figure_name = $(this).attr('id').substring(5);
+            var figure_name = $(this).attr('id').substring('base-'.length);
             $('fieldset.similar-figure input[id="similar_' + figure_name + '"], ' +
               'fieldset.different-figure input[id="different_' + figure_name + '"]')
               .prop('disabled', true)
               .parent()
               .addClass('base-figure');
+          });
+
+          $('fieldset.similar-figure input').change(function() {
+            debugger;
+            var figure_name = $(this).attr('id').substring('similar-'.length);
+            $('fieldset.different-figure input[id="different_' + figure_name + '"]')
+              .prop('checked', false);
+          });
+
+          $('fieldset.different-figure input').change(function() {
+            var figure_name = $(this).attr('id').substring('different-'.length);
+            $('fieldset.similar-figure input[id="similar_' + figure_name + '"]')
+              .prop('checked', false);
           });
         });
     fieldset.similar-figure
@@ -110,5 +123,7 @@ form.questions.figure-set.form-inline method='post'
       h3 4. Czy figury z tego zestawu coś Ci przypominają?
       input.input-xxlarge.answer type="text" name="answer[#{figure_set[:id]}][association]" placeholder="Wpisz skojarzenie..."
     .vspace2
+    .alert.fill-before-continue-info
+      | Odpowiedz na wszystkie pytania na stronie, aby przejść dalej.
     .text-center
       button.continue.btn.btn-primary.btn-large type='submit' disabled=true Dalej
