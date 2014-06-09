@@ -37,8 +37,12 @@ class SurveyAnswer
 
   def update(data)
     if data[:answer]
-      ans = JSON.load(@db.get("answer:#{@answer_id}:answer") || '{}')
-      ans.update(data[:answer])
+      ans_raw = @db.get("answer:#{@answer_id}:answer")
+      ans = if ans_raw
+        JSON.load(ans_raw).update(data[:answer])
+      else
+        data[:answer]
+      end
       @db.set "answer:#{@answer_id}:answer", ans.to_json
     end
     @db.set "answer:#{@answer_id}:gender", data[:gender] if data[:gender]
