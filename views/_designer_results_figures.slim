@@ -11,7 +11,13 @@
       tr.success
         td.toggle: input type='checkbox' name='display_all' checked=true
         td: span.lead: strong Wszystkie
-        td: span.badge.badge-success: span.lead #{@answers[:finished].size}
+        td
+          - finished_sets_per_answer = @answers[:all].map { |e| e[:answer] && e[:answer].size }.compact
+          - finished_sets = finished_sets_per_answer.inject(:+)
+          - finished_stages = finished_sets_per_answer.map { |e| e / SurveyAnswer::QuestionsPerStage }.inject(:+)
+          span.badge.badge-success: span.lead #{@answers[:finished].size} ankiet
+          span.badge.badge-success: span.lead #{finished_stages} etapów
+          span.badge.badge-success: span.lead #{finished_sets} zestawów
         td: span.badge: span.lead #{@answers[:all].size}
         td: .btn-group.pull-right
           a.download.btn href="/designer/#{@module}/answers-finished.csv"
@@ -30,7 +36,13 @@
         tr
           td.toggle: input type='checkbox' name="display[#{surveyer[:name]}]" checked=true
           td: span.lead= surveyer[:name]
-          td: span.badge.badge-success: span.lead #{surveyer[:finished].size}
+          td
+            - finished_sets_per_answer = surveyer[:all].map { |e| e[:answer] && e[:answer].size }.compact
+            - finished_sets = finished_sets_per_answer.inject(:+)
+            - finished_stages = finished_sets_per_answer.map { |e| e / SurveyAnswer::QuestionsPerStage }.inject(:+)
+            span.badge.badge-success: span.lead #{surveyer[:finished].size} ankiet
+            span.badge.badge-success: span.lead #{finished_stages} etapów
+            span.badge.badge-success: span.lead #{finished_sets} zestawów
           td: span.badge: span.lead #{surveyer[:all].size}
           td
   form.form.subset

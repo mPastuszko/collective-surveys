@@ -376,6 +376,7 @@ def answers(kind, display_filter = nil)
       if display_filter.nil? or display_filter[surveyer]
         db.smembers("survey:#{survey}:answers")
           .map { |answer|
+            answer_raw = db.get("answer:#{answer}:answer")
             {
               id: answer,
               surveyer: surveyer,
@@ -389,7 +390,8 @@ def answers(kind, display_filter = nil)
               when 'figures'
                 db.smembers("survey:#{survey}:figure_sets")
               end),
-              answer_raw: db.get("answer:#{answer}:answer")
+              answer_raw: answer_raw,
+              answer: answer_raw && JSON.load(answer_raw)
             }
           }
       else
@@ -400,7 +402,6 @@ def answers(kind, display_filter = nil)
     .sort {|a, b| a[:id] <=> b[:id] }
   finished = answers
     .select { |answer| answer[:state] == 'finished' and answer[:answer_raw] }
-    .each { |answer| answer[:answer] = JSON.load(answer[:answer_raw]) }
   surveyers = db.smembers("#{kind}:surveys")
     .map { |survey| db.get("survey:#{survey}:surveyer_name") }
     .uniq
