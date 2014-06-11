@@ -13,11 +13,17 @@
         td: span.lead: strong Wszystkie
         td
           - finished_sets_per_answer = @answers[:all].map { |e| e[:answer] && e[:answer].size }.compact
-          - finished_sets = finished_sets_per_answer.inject(:+)
-          - finished_stages = finished_sets_per_answer.map { |e| e / SurveyAnswer::QuestionsPerStage }.inject(:+)
-          span.badge.badge-success: span.lead #{@answers[:finished].size} ankiet
-          span.badge.badge-success: span.lead #{finished_stages} etapów
-          span.badge.badge-success: span.lead #{finished_sets} zestawów
+          - finished_sets = finished_sets_per_answer.inject(:+) || 0
+          - finished_stages = finished_sets_per_answer.map { |e| e / SurveyAnswer::QuestionsPerStage }.inject(:+) || 0
+          span.badge.badge-success
+            span.lead #{@answers[:finished].size} 
+            ' ankiet
+          span.badge.badge-success
+            span.lead #{finished_stages} 
+            ' etapów
+          span.badge.badge-success
+            span.lead #{finished_sets} 
+            ' zestawów
         td: span.badge: span.lead #{@answers[:all].size}
         td: .btn-group.pull-right
           a.download.btn href="/designer/#{@module}/answers-finished.csv"
@@ -38,11 +44,17 @@
           td: span.lead= surveyer[:name]
           td
             - finished_sets_per_answer = surveyer[:all].map { |e| e[:answer] && e[:answer].size }.compact
-            - finished_sets = finished_sets_per_answer.inject(:+)
-            - finished_stages = finished_sets_per_answer.map { |e| e / SurveyAnswer::QuestionsPerStage }.inject(:+)
-            span.badge.badge-success: span.lead #{surveyer[:finished].size} ankiet
-            span.badge.badge-success: span.lead #{finished_stages} etapów
-            span.badge.badge-success: span.lead #{finished_sets} zestawów
+            - finished_sets = finished_sets_per_answer.inject(:+) || 0
+            - finished_stages = finished_sets_per_answer.map { |e| e / SurveyAnswer::QuestionsPerStage }.inject(:+) || 0
+            span.badge.badge-success
+              span.lead #{surveyer[:finished].size} 
+              ' ankiet
+            span.badge.badge-success
+              span.lead #{finished_stages} 
+              ' etapów
+            span.badge.badge-success
+              span.lead #{finished_sets} 
+              ' zestawów
           td: span.badge: span.lead #{surveyer[:all].size}
           td
   form.form.subset
