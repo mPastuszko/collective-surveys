@@ -5,6 +5,7 @@ form.questions.figure-set.form-inline method='post'
   - step = @answer.question_num.abs / SurveyAnswer::QuestionsPerStage
   - steps = @data[:figure_sets].size / SurveyAnswer::QuestionsPerStage + \
     (@data[:figure_sets].size % SurveyAnswer::QuestionsPerStage != 0 ? 1 : 0)
+  - remaining_questions_in_step = SurveyAnswer::QuestionsPerStage - @answer.question_num.abs % SurveyAnswer::QuestionsPerStage
   - if @answer.question_num < 0
     h2 Gratulacje, ukończyłeś etap #{step} z #{steps}
     .vspace2
@@ -14,7 +15,9 @@ form.questions.figure-set.form-inline method='post'
     .text-center
       button.continue.btn.btn-primary.btn-large type='submit' Dalej
   - else
-    h2 Etap #{step + 1} z #{steps}
+    h2
+      ' Etap #{step + 1} z #{steps}
+      small #{remaining_questions_in_step} zestawów do końca etapu
     .alert.alert-info
       strong  Zmęczony?
       '  W każdej chwili możesz przerwać badanie i kontynuować je później. Wystarczy, że powrócisz na tę stronę.
