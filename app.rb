@@ -164,13 +164,14 @@ get %r{/designer/(synonyms|homophones|figures)/results-part} do |m|
   @module = m.to_sym
   @page = (params[:page] || 0).to_i
   display_filter = params[:display]
-  subset = (params[:subset] || 'finished').to_sym
   @answers = answers(m, display_filter)
-  @results = case m
+  case m
     when 'synonyms', 'homophones'
-      sort_word_results(word_results(m, @answers[subset]), params[:sort] ||= 'alpha')
+      subset = :finished
+      @results = sort_word_results(word_results(m, @answers[subset]), params[:sort] ||= 'alpha')
     when 'figures'
-      figure_results(@answers[subset])
+      subset = :all
+      @results = figure_results(@answers[subset])
     end
   @ages = @answers[subset].map { |a| a[:age].to_i }.reject(&:zero?)
   @avg_age = (@ages.inject(:+).to_f / @ages.size)
@@ -486,8 +487,10 @@ def figure_results(answers)
   answers
     .map { |a| a[:answer] }
     .inject(Hash.new { [] }) { |memo, a|
-      a.each_pair do |figure_set_id, figure_set_answer|
-        memo[figure_set_id] += [figure_set_answer]
+      if a
+        a.each_pair do |figure_set_id, figure_set_answer|
+          memo[figure_set_id] += [figure_set_answer]
+        end
       end
       memo
     }
