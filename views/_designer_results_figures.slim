@@ -71,7 +71,8 @@
       $('#results-pane').load(
         "/designer/#{@module}/results-part?" +
           $('input[name^="display["]').serialize() + '&' +
-          $('input[name="subset"]').serialize(),
+          $('input[name="subset"]').serialize() + '&' + 
+          $('input[name="page"]').serialize(),
         null,
         function() {
           $('#results-pane #surveyers').replaceWith(surveyers);
@@ -101,6 +102,13 @@
       var params = $('input[name^="display["]').serialize();
       link.attr('href', base_url + '?' + params);
       return true;
+    });
+    $('.pagination a').click(function(e) {
+      var page = $(e.target).attr('data-page');
+      $('input[name=page]').val(page);
+      putLoaderIn(e.target);
+      reload_results(e);
+      return false;
     });
 - if @answers[:finished].empty?
   #answers
@@ -135,9 +143,17 @@
           li: a.download href="/designer/#{@module}/results-all.csv"
             i.icon-align-justify
             '  Wszystkie
-    - @results.each.with_index do |result, figure_set_num|
+    input type='hidden' name='page' value=@page
+    - figure_sets_per_page = 10
+    .pagination.pagination-centered
+      ul
+        - (@results.size / figure_sets_per_page + @results.size % figure_sets_per_page).times do |p|
+          li class=(p == @page ? 'active' : '')
+            a href='#' data-page=p = p + 1
+    - offset = @page * figure_sets_per_page
+    - @results.slice(offset, figure_sets_per_page).each.with_index do |result, figure_set_num|
       - figure_ids = result.keys.select { |k| k.is_a? String }
-      h3 Zestaw #{figure_set_num + 1}
+      h3 Zestaw #{offset + figure_set_num + 1}
       .row.figure-set.results
         .matrix.span6
           .matrix-caption.similar: span podobne
@@ -197,6 +213,11 @@
                   - unless association.strip.empty?
                     li= association
           .cell-info
+    .pagination.pagination-centered
+      ul
+        - (@results.size / figure_sets_per_page + @results.size % figure_sets_per_page).times do |p|
+          li class=(p == @page ? 'active' : '')
+            a href='#' data-page=p = p + 1
     javascript:
       $(function() {
         /*

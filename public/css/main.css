@@ -360,3 +360,8 @@ fieldset .instructions {
   max-width: 92px;
   max-height: 92px;
 }
+
+.pagination ul > li {
+  position: relative;
+  display: table-cell;
+}

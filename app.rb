@@ -162,6 +162,7 @@ end
 
 get %r{/designer/(synonyms|homophones|figures)/results-part} do |m|
   @module = m.to_sym
+  @page = (params[:page] || 0).to_i
   display_filter = params[:display]
   subset = (params[:subset] || 'finished').to_sym
   @answers = answers(m, display_filter)
