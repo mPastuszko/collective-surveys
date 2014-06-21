@@ -166,13 +166,13 @@ get %r{/designer/(synonyms|homophones|figures)/results-part} do |m|
   display_filter = params[:display]
   @answers = answers(m, display_filter)
   case m
-    when 'synonyms', 'homophones'
-      subset = :finished
-      @results = sort_word_results(word_results(m, @answers[subset]), params[:sort] ||= 'alpha')
-    when 'figures'
-      subset = :all
-      @results = figure_results(@answers[subset])
-    end
+  when 'synonyms', 'homophones'
+    subset = :finished
+    @results = sort_word_results(word_results(m, @answers[subset]), params[:sort] ||= 'alpha')
+  when 'figures'
+    subset = :all
+    @results = figure_results(@answers[subset])
+  end
   @ages = @answers[subset].map { |a| a[:age].to_i }.reject(&:zero?)
   @avg_age = (@ages.inject(:+).to_f / @ages.size)
     .round(2)
