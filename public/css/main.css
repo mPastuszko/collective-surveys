@@ -256,6 +256,7 @@ fieldset .instructions {
   cursor: pointer;
   font-size: large;
   text-align: center;
+  color: #08C;
 }
 
 .figure-set.results .matrix td.hover {
