@@ -244,3 +244,119 @@ footer span {
 fieldset .instructions {
   width: 90%;
 }
+
+
+.figure-set.results .matrix td {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 50px;
+  height: 50px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  font-size: large;
+  text-align: center;
+}
+
+.figure-set.results .matrix td.hover {
+  outline: 1px solid #08C;
+}
+
+.figure-set.results .matrix td.selected {
+  outline: 2px solid #08C;
+}
+
+.figure-set.results .matrix td.highlighted {
+  outline: 2px solid #FF9E35;
+}
+
+.figure-set.results .matrix td.base .hits-num {
+  background: rgba(255, 255, 255, 0.8);
+  font-weight: bold;
+}
+
+.figure-set.results .matrix td.base.hover .hits-num {
+  display: none;
+}
+
+.figure-set.results .matrix .cell-info {
+  display: none;
+}
+
+.figure-set.results .matrix td.similar,
+.figure-set.results .matrix .similar span {
+  background-color: #DFF0D8;
+}
+
+.figure-set.results .matrix td.different,
+.figure-set.results .matrix .different span {
+  background-color: #F2DEDE;
+}
+
+.figure-set.results .matrix-caption {
+  padding: 0;
+  width: 530px;
+}
+
+.figure-set.results .matrix-caption span {
+  padding: 0 40px;
+  border: 1px solid #ddd;
+  font-size: large;
+}
+
+.figure-set.results .matrix-caption.similar {
+  text-align: right;
+}
+
+.figure-set.results .matrix-caption.similar span {
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  vertical-align: bottom;
+}
+
+.figure-set.results .matrix-caption.different span {
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+}
+
+.figure-set.results .info-box {
+  background-color: #FCF8E3;
+  border: 1px solid #FBEED5;
+  border-radius: 4px;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.figure-set.results .info-box h4 {
+  padding-top: 0;
+  margin-top: 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.figure-set.results .info-box .scrollable {
+  height: 500px;
+  overflow: auto;
+}
+
+.figure-set.results .info-box .figures {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.figure-set.results .info-box .figures td {
+  text-align: center;
+  vertical-align: middle;
+  font-size: large;
+}
+
+.figure-set.results .info-box .figure {
+  width: 92px;
+  height: 92px;
+  background: #fff;
+  display: inline-block;
+}
+
+.figure-set.results .info-box .figure img {
+  max-width: 92px;
+  max-height: 92px;
+}

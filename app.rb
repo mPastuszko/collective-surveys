@@ -214,7 +214,6 @@ post %r{/designer/(synonyms|homophones)/split-words} do |m|
 end
 
 post %r{/designer/(synonyms|homophones)/disable-enable-word} do |m|
-  p params
   base_word = params[:base_word]
   word = params[:word]
   disable = (params[:disable] == 'true')
@@ -354,19 +353,23 @@ end
 def figure_sets(source = "figures:figure_sets")
   db.smembers(source).sort { |f1, f2|
     f1.to_i <=> f2.to_i
-  }.map do |id|
-    {
-      id: id,
-      figures: db.smembers("figures:figure_set:#{id}:figures")
-        .map { |figure|
-          {
-            name: figure,
-            url: "/figure/#{id}/#{figure}"
-          }
+  }.map { |id|
+    figure_set(id)
+  }
+end
+
+def figure_set(id)
+  {
+    id: id,
+    figures: db.smembers("figures:figure_set:#{id}:figures")
+      .map { |figure|
+        {
+          name: figure,
+          url: "/figure/#{id}/#{figure}"
         }
-        .sort { |f1, f2| f1[:name] <=> f2[:name] }
-    }
-  end
+      }
+      .sort { |f1, f2| f1[:name] <=> f2[:name] }
+  }
 end
 
 def answers(kind, display_filter = nil)
@@ -479,7 +482,75 @@ def word_results(kind, answers)
 end
 
 def figure_results(answers)
+  answers
+    .map { |a| a[:answer] }
+    .inject(Hash.new { [] }) { |memo, a|
+      a.each_pair do |figure_set_id, figure_set_answer|
+        memo[figure_set_id] += [figure_set_answer]
+      end
+      memo
+    }
+    .sort
+    .map { |figure_set_id, figure_set_answers|
+      figure_set_answers_symbolized = figure_set_answers
+        .map { |a|
+          a.inject({}) { |memo,(k,v)|
+            memo[k.to_sym] = v
+            memo
+          }
+        }
+      figure_set_answers_stats(figure_set_id, figure_set_answers_symbolized)
+    }
+end
 
+def figure_set_answers_stats(figure_set_id, figure_set_answers)
+  answers_num = figure_set_answers.size
+  figure_set = figure_set(figure_set_id)
+  figures_matrix = figure_set_matrix(figure_set[:figures])
+  figure_ids = figure_set[:figures].map {|f| f[:name] }
+
+  figure_set_answers.each do |a|
+    similar_ids_pair = [a[:base], a[:similar]].sort
+    different_ids_pair = [a[:base], a[:different]].sort.reverse
+    figures_matrix[a[:base]][a[:base]][:hits] << a
+    figures_matrix[similar_ids_pair.first][similar_ids_pair.last][:hits] << a
+    figures_matrix[different_ids_pair.first][different_ids_pair.last][:hits] << a
+    figures_matrix[:associations] << a[:association]
+  end
+
+  figure_ids.each do |fig_id|
+    cell = figures_matrix[fig_id][fig_id]
+    cell[:cell_type] = :base
+  end
+
+  figure_ids.each do |row_id|
+    cell_type = 'different'
+    figure_ids.each do |col_id|
+      cell_type = 'similar' and next if col_id == row_id
+      cell = figures_matrix[row_id][col_id]      
+      cell[:cell_type] = cell_type.to_sym
+
+      unless cell[:hits].empty?
+        cell[:avg_rating] = cell[:hits]
+          .map { |h|
+            h[(cell_type + '_rating').to_sym].to_i
+          }
+          .inject(:+)
+          .to_f / cell[:hits].size
+      end
+    end
+  end
+
+  figures_matrix
+end
+
+def figure_set_matrix(figures)
+  figures.inject({}) { |matrix, figure|
+    matrix_row = figures.inject({}) { |row, f|
+      row.merge(f[:name] => f.merge(hits: []))
+    }
+    matrix.merge(figure[:name] => figure.merge(matrix_row))
+  }.merge(:associations => [])
 end
 
 def questions(answers)

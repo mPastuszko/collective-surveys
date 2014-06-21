@@ -135,4 +135,175 @@
           li: a.download href="/designer/#{@module}/results-all.csv"
             i.icon-align-justify
             '  Wszystkie
-      
+    - @results.each.with_index do |result, figure_set_num|
+      - figure_ids = result.keys.select { |k| k.is_a? String }
+      h3 Zestaw #{figure_set_num + 1}
+      .row.figure-set.results
+        .matrix.span6
+          .matrix-caption.similar: span podobne
+          table
+            - figure_ids.each do |row_id|
+              tr
+                - figure_ids.each do |col_id|
+                  - cell = result[row_id][col_id]
+                  - if cell[:cell_type] == :base
+                    td.base style="background-image: url(#{cell[:url]})" data-cell=cell.to_json
+                      - unless cell[:hits].empty?
+                        .hits-num #{cell[:hits].size}
+                      .cell-info
+                        h4
+                          ' Figura bazowa: 
+                          strong #{cell[:hits].size}
+                        .scrollable
+                          .figure.thumbnail
+                            img src=cell[:url] title=cell[:name]
+                  - else
+                    td data-cell=cell.to_json class=cell[:cell_type]
+                      - unless cell[:hits].empty?
+                        .hits-num #{cell[:hits].size}
+                        .avg-rating #{cell[:avg_rating].round(1)}
+                        .cell-info
+                          - title = cell[:cell_type] == :similar ? 'Podobieństwa figur' : 'Niepodobieństwa figur'
+                          h4
+                            = title + ': '
+                            strong= cell[:hits].size.to_s
+                            .pull-right: small śr. ocena: #{cell[:avg_rating].round(1)}
+                          .scrollable
+                            - base_name = cell[:hits].first[:base]
+                            - pair_name = cell[:hits].first[cell[:cell_type]]
+                            - base_url = cell[:url].gsub(/[^\/]+$/, base_name)
+                            - pair_url = cell[:url].gsub(/[^\/]+$/, pair_name)
+                            table.figures
+                              tr
+                                td
+                                  .figure.thumbnail
+                                    img src=base_url title=base_name
+                                td oraz
+                                td
+                                  .figure.thumbnail
+                                    img src=pair_url title=pair_name
+                            ul
+                              - cell[:hits].each do |hit|
+                                - explanation = hit[(cell[:cell_type].to_s + '_explanation').to_sym]
+                                - unless explanation.strip.empty?
+                                  li= explanation
+          .matrix-caption.different: span niepodobne
+        .info-box.span4
+          .associations-info
+            h4 Skojarzenia zestawu
+            .scrollable
+              ul
+                - result[:associations].each do |association|
+                  - unless association.strip.empty?
+                    li= association
+          .cell-info
+    javascript:
+      $(function() {
+        /*
+            HELPERS
+        */
+        function updateCellInfo(figure_set, cell) {
+          var info_box = figure_set.find('.info-box');
+          var associations_info_box = info_box.find('.associations-info');
+          var cell_info_box = info_box.find('.cell-info');
+          var cell_info = cell.find('.cell-info');
+          
+          cell_info_box.html(cell_info.html());
+          associations_info_box.hide();
+          cell_info_box.show();
+        }
+
+        function resetCellInfo(figure_set) {
+          var info_box = figure_set.find('.info-box');
+          var associations_info_box = info_box.find('.associations-info');
+          var cell_info_box = info_box.find('.cell-info');
+
+          cell_info_box.empty();
+          cell_info_box.hide();
+          associations_info_box.show();
+        }
+
+        function updateCellHover(figure_set, cell) {
+          resetCellHover(figure_set, cell);
+          cell.addClass('hover');
+          
+        }
+
+        function resetCellHover(figure_set) {
+          figure_set.find('td.hover').removeClass('hover');
+        }
+
+        function updateCellSelection(figure_set, cell) {
+          resetCellSelection(figure_set);
+          resetCellHover(figure_set);
+          resetCellInfo(figure_set);
+
+          if(cell) {
+            cell.addClass('selected');
+            updateCellInfo(figure_set, cell);
+          }
+        }
+
+        function resetCellSelection(figure_set) {
+          figure_set.find('td.selected').removeClass('selected');
+        }
+
+        function highlightBaseFigures(figure_set, cell) {
+          resetBaseFiguresHighlight(figure_set);
+          if(cell) {
+            var cell_row = cell.parent().index();
+            var cell_col = cell.index();
+            var base_1 = figure_set.find('table tr:nth-child(' + (cell_row + 1) +
+              ') td:nth-child(' + (cell_row + 1) + ')');
+            var base_2 = figure_set.find('table tr:nth-child(' + (cell_col + 1) +
+              ') td:nth-child(' + (cell_col + 1) + ')');
+
+            base_1.addClass('highlighted');
+            base_2.addClass('highlighted');
+          }
+        }
+
+        function resetBaseFiguresHighlight(figure_set) {
+          figure_set.find('.highlighted').removeClass('highlighted');
+        }
+
+        /*
+            EVENT HANDLERS
+        */
+        function mouseOverCell(figure_set, cell, e) {
+          updateCellHover(figure_set, cell);
+          highlightBaseFigures(figure_set, cell);
+          updateCellInfo(figure_set, cell);
+        }
+
+        function mouseLeftCell(figure_set, cell, e) {
+          resetCellHover(figure_set);
+          resetBaseFiguresHighlight(figure_set);
+          resetCellInfo(figure_set, cell);
+        }
+
+        $(".matrix table").delegate('td','mouseover mouseleave', function(e) {
+          var figure_set = $(this).parents('.figure-set');
+          var cell = $(this);
+
+          if(figure_set.find('td.selected').length == 0) {
+            if(e.type == 'mouseover') {
+              mouseOverCell(figure_set, cell, e);
+            } else {
+              mouseLeftCell(figure_set, cell, e);
+            }
+          }
+        });
+
+        $(".matrix table").delegate('td','click', function(e) {
+          var figure_set = $(this).parents('.figure-set');
+          var cell = $(this);
+
+          if(cell.hasClass('selected')) {
+            resetCellSelection(figure_set);
+          } else {
+            updateCellSelection(figure_set, cell);
+          }
+        });
+
+      });

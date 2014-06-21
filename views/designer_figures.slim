@@ -49,7 +49,7 @@ h1.well Figury
           javascript:
             $("a[data-toggle='tab'][href='#results-pane']").on('shown', function() {
               if($('#results-pane').hasClass('not-loaded')) {
-                $('#results-pane').load("/designer/#{@module}/results-part}", function(response, status, xhr){
+                $('#results-pane').load("/designer/#{@module}/results-part", function(response, status, xhr){
                   if(status == "error") {
                     $("#results-pane").html(response);
                   }
