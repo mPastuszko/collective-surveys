@@ -132,9 +132,11 @@
             '  Wszystkie
     input type='hidden' name='page' value=@page
     - figure_sets_per_page = 10
+    - pages_num = @results.size / figure_sets_per_page + \
+      (@results.size % figure_sets_per_page > 0 ? 1 : 0)
     .pagination.pagination-centered
       ul
-        - (@results.size / figure_sets_per_page + @results.size % figure_sets_per_page).times do |p|
+        - pages_num.times do |p|
           li class=(p == @page ? 'active' : '')
             a href='#' data-page=p = p + 1
     - offset = @page * figure_sets_per_page
@@ -202,7 +204,7 @@
           .cell-info
     .pagination.pagination-centered
       ul
-        - (@results.size / figure_sets_per_page + @results.size % figure_sets_per_page).times do |p|
+        - pages_num.times do |p|
           li class=(p == @page ? 'active' : '')
             a href='#' data-page=p = p + 1
     javascript:
