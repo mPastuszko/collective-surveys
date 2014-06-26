@@ -545,6 +545,10 @@ def figure_set_answers_stats(figure_set_id, figure_set_answers)
     end
   end
 
+  figures_matrix[:associations].sort! do |a, b|
+    a.downcase <=> b.downcase
+  end
+
   figures_matrix
 end
 

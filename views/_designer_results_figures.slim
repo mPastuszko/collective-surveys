@@ -188,8 +188,11 @@
                                   .figure.thumbnail
                                     img src=pair_url title=pair_name
                             ul
-                              - cell[:hits].each do |hit|
-                                - explanation = hit[(cell[:cell_type].to_s + '_explanation').to_sym]
+                              - cell[:hits].map { |hit| \
+                                hit[(cell[:cell_type].to_s + '_explanation').to_sym] \
+                              }.sort { |a, b| \
+                                a.downcase <=> b.downcase \
+                              }. each do |explanation|
                                 - unless explanation.strip.empty?
                                   li= explanation
           .matrix-caption.different: span niepodobne
