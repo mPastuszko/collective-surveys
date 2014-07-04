@@ -73,13 +73,13 @@ get '/designer' do
   slim :designer_index, :layout => :layout_designer
 end
 
-get %r{/designer/(synonyms|homophones|figures)/import$} do |m|
+get %r{/designer/(synonyms|bas|figures)/import$} do |m|
   @module = m.to_sym
   @module_name = module_name(m)
   slim :designer_import, :layout => :layout_designer
 end
 
-post %r{/designer/(synonyms|homophones|figures)/import$} do |m|
+post %r{/designer/(synonyms|bas|figures)/import$} do |m|
   @module = m.to_sym
   @module_name = module_name(m)
   @file = params[:file][:tempfile]
@@ -87,7 +87,7 @@ post %r{/designer/(synonyms|homophones|figures)/import$} do |m|
   slim :designer_import_preview, :layout => :layout_designer
 end
 
-post %r{/designer/(synonyms|homophones|figures)/import/verified$} do |m|
+post %r{/designer/(synonyms|bas|figures)/import/verified$} do |m|
   csv = JSON[params[:answers]]
   answers = csv[1..-1]
   surveyer_name = csv[1][1]
@@ -106,7 +106,7 @@ post %r{/designer/(synonyms|homophones|figures)/import/verified$} do |m|
   redirect to("/designer/#{m}")
 end
 
-get %r{/designer/(synonyms|homophones|figures)/answers-(finished|all).csv} do |m, subset|
+get %r{/designer/(synonyms|bas|figures)/answers-(finished|all).csv} do |m, subset|
   content_type :csv
   display_filter = params[:display]
   answers = answers(m, display_filter)[subset.to_sym]
@@ -115,7 +115,7 @@ get %r{/designer/(synonyms|homophones|figures)/answers-(finished|all).csv} do |m
     .join($/)
 end
 
-get %r{/designer/(synonyms|homophones|figures)/results-(finished|all).csv} do |m, subset|
+get %r{/designer/(synonyms|bas|figures)/results-(finished|all).csv} do |m, subset|
   content_type :csv
   display_filter = params[:display]
   answers = answers(m, display_filter)[subset.to_sym]
@@ -160,13 +160,13 @@ get %r{/designer/(synonyms|homophones|figures)/results-(finished|all).csv} do |m
     .join($/)
 end
 
-get %r{/designer/(synonyms|homophones|figures)/results-part} do |m|
+get %r{/designer/(synonyms|bas|figures)/results-part} do |m|
   @module = m.to_sym
   @page = (params[:page] || 0).to_i
   display_filter = params[:display]
   @answers = answers(m, display_filter)
   case m
-  when 'synonyms', 'homophones'
+  when 'synonyms', 'bas'
     subset = :finished
     @results = sort_word_results(word_results(m, @answers[subset]), params[:sort] ||= 'alpha')
   when 'figures'
@@ -185,7 +185,7 @@ get %r{/designer/(synonyms|homophones|figures)/results-part} do |m|
     }
   @genders[:all] = @genders.values.inject(:+)
   results_part = case m
-    when 'synonyms', 'homophones'
+    when 'synonyms', 'bas'
       'words'
     when 'figures'
       'figures'
@@ -193,7 +193,7 @@ get %r{/designer/(synonyms|homophones|figures)/results-part} do |m|
   slim "_designer_results_#{results_part}".to_sym, :layout => false
 end
 
-post %r{/designer/(synonyms|homophones)/merge-words} do |m|
+post %r{/designer/(synonyms|bas)/merge-words} do |m|
   merged_words = JSON[db.get("#{m}:merged_words") || '{}']
   params[:merge].each_pair do |base_word, words|
     merged_words[base_word] ||= []
@@ -203,7 +203,7 @@ post %r{/designer/(synonyms|homophones)/merge-words} do |m|
   200
 end
 
-post %r{/designer/(synonyms|homophones)/split-words} do |m|
+post %r{/designer/(synonyms|bas)/split-words} do |m|
   base_word = params[:base_word]
   word = params[:word]
   merged_words_set = JSON[db.get("#{m}:merged_words") || '{}']
@@ -215,7 +215,7 @@ post %r{/designer/(synonyms|homophones)/split-words} do |m|
   200
 end
 
-post %r{/designer/(synonyms|homophones)/disable-enable-word} do |m|
+post %r{/designer/(synonyms|bas)/disable-enable-word} do |m|
   base_word = params[:base_word]
   word = params[:word]
   disable = (params[:disable] == 'true')
@@ -230,10 +230,10 @@ post %r{/designer/(synonyms|homophones)/disable-enable-word} do |m|
   200
 end
 
-get %r{/designer/(synonyms|homophones|figures)} do |m|
+get %r{/designer/(synonyms|bas|figures)} do |m|
   @module = m.to_sym
   case m
-  when 'synonyms', 'homophones'
+  when 'synonyms', 'bas'
     @base_words = db.get "#{m}:base_words"
   when 'figures'
     @figure_sets = figure_sets
@@ -250,7 +250,7 @@ get '/figure/:id/:filename' do |id, filename|
   send_file figure_path(id, filename)
 end
 
-post %r{/designer/(synonyms|homophones)/plan} do |m|
+post %r{/designer/(synonyms|bas)/plan} do |m|
   db.set "#{m}:base_words", params[:base_words]
   redirect to("/designer/#{m}#plan")
 end
@@ -277,14 +277,14 @@ delete '/designer/figures/plan/:id' do |id|
   redirect to("/designer/figures#plan")
 end
 
-post %r{/designer/(synonyms|homophones|figures)/publish} do |m|
+post %r{/designer/(synonyms|bas|figures)/publish} do |m|
   survey_id = create_survey(m, session[:username], params[:instructions])
   session[m] ||= {}
   session[m][:survey_id] = survey_id
   redirect to("/designer/#{m}#publish")
 end
 
-post %r{/designer/(synonyms|homophones|figures)/reset} do |m|
+post %r{/designer/(synonyms|bas|figures)/reset} do |m|
   survey_id = session[m] && session[m][:survey_id]
   db.srem "#{m}:surveys", survey_id
   session[m][:survey_id] = nil
@@ -324,7 +324,7 @@ def create_survey(kind, surveyer_name, instructions, base_data = nil)
   db.set "survey:#{survey_id}:kind", kind
   db.set "survey:#{survey_id}:instructions", instructions
   case kind
-  when 'synonyms', 'homophones'
+  when 'synonyms', 'bas'
     base_words = base_data || db.get("#{kind}:base_words")
       .lines
       .to_a
@@ -342,7 +342,7 @@ def survey_data(survey_id)
   data = {}
   kind = db.get "survey:#{survey_id}:kind"
   case kind
-  when 'synonyms', 'homophones'
+  when 'synonyms', 'bas'
     data[:base_words] = JSON.load(db.get("survey:#{survey_id}:base_words"))
   when 'figures'
     data[:figure_sets] = figure_sets("survey:#{survey_id}:figure_sets")
@@ -393,7 +393,7 @@ def answers(kind, display_filter = nil)
               gender: db.get("answer:#{answer}:gender"),
               age: db.get("answer:#{answer}:age"),
               question: (case kind
-              when 'synonyms', 'homophones'
+              when 'synonyms', 'bas'
                 tmp = db.get("survey:#{survey}:base_words") and JSON.load(tmp).map(&:strip)
               when 'figures'
                 db.smembers("survey:#{survey}:figure_sets")
@@ -431,7 +431,7 @@ def normalize_answers(kind, answers)
   questions = questions(answers).to_a.sort
   header = ['Nr', 'Ankieter', 'Stan', 'Rodzaj', 'Płeć', 'Wiek'] + questions
   case kind
-  when 'synonyms', 'homophones'
+  when 'synonyms', 'bas'
     [header] + answers
       .sort {|a, b| a[:id].to_i <=> b[:id].to_i } \
       .map do |a|
@@ -581,7 +581,7 @@ end
 def module_name(m)
   {
     synonyms: 'Synonimy',
-    homophones: 'Homofony',
+    bas: 'BAS',
     figures: 'Figury'
   }[m.to_sym]
 end
