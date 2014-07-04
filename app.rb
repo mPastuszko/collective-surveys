@@ -473,7 +473,7 @@ def word_results(kind, answers)
         enabled_words_histogram: enabled_words_histogram,
         statistics: WordProcessor::statistics(enabled_words_histogram),
         statistics_first_6: WordProcessor::statistics(enabled_words_histogram[0...6]),
-        fas_first_6: WordProcessor::fas(enabled_words_histogram[0...6])
+        fas: WordProcessor::fas(enabled_words_histogram)
       }
     end
 

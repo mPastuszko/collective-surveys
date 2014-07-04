@@ -125,7 +125,7 @@
                 - word_set[:similar_distributions].each do |word, diff|
                   li: a href="#results-#{word}"= word
           dd: ul.unstyled
-            - fas_first_6 = word_set[:fas_first_6].dup
+            - fas = word_set[:fas].dup
             - word_set[:histogram].each do |word|
               li
                 span.badge class=badge_for_frequency(word[:frequency]) = word[:frequency]
@@ -151,10 +151,10 @@
                         li: a.enable-word href='#' data-word=word[:word] data-base_word=word_set[:base_word] Uwzględniaj słowo
                       - else
                         li: a.disable-word href='#' data-word=word[:word] data-base_word=word_set[:base_word] Nie uwzględniaj słowa
-                - unless fas_first_6.empty? or word[:disabled]
+                - unless fas.empty? or word[:disabled]
                   span.fas
                     span.muted= "FAS: "
-                    = fas_first_6.shift.round(2)
+                    = fas.shift.round(6)
     javascript:
       function findWordActionsButton(action) {
         return action.parents('.actions').find('button');
