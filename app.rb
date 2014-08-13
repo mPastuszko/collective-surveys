@@ -302,9 +302,12 @@ get '/survey/:id' do |survey_id|
 end
 
 post '/survey/:id' do |survey_id|
-  answer_id = session[:survey][survey_id]
-  answer = SurveyAnswer.new(db, survey_id, answer_id)
-  answer.update(params)
+  surveys = session[:survey]
+  if surveys
+    answer_id = surveys[survey_id]
+    answer = SurveyAnswer.new(db, survey_id, answer_id)
+    answer.update(params)
+  end
   redirect to("/survey/#{survey_id}")
 end
 
@@ -531,7 +534,7 @@ def figure_set_answers_stats(figure_set_id, figure_set_answers)
     cell_type = 'different'
     figure_ids.each do |col_id|
       cell_type = 'similar' and next if col_id == row_id
-      cell = figures_matrix[row_id][col_id]      
+      cell = figures_matrix[row_id][col_id]
       cell[:cell_type] = cell_type.to_sym
 
       unless cell[:hits].empty?
