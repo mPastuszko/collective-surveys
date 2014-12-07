@@ -16,26 +16,33 @@ h1.well BAS
       #plan-pane.tab-pane
         .alert.alert-info
           strong Jak to działa?
-          '  Poniższa lista zawiera słowa bazowe. Każde z nich zostanie przedstawione uczestnikowi badania. Jego zadaniem będzie napisanie słowa o brzmieniu najbardziej zbliżonym do słowa bazowego.
+          '  Poniższa lista zawiera słowa bazowe oraz dla każdego z nich słowa skojarzone ze słowem bazowym. Dla słów skojarzonych ze słowem bazowym określany będzie wskaźnik BAS. Każde z nich zostanie przedstawione uczestnikowi badania. Jego zadaniem będzie napisanie słowa o brzmieniu najbardziej zbliżonym do zaprezentowanego słowa. Słowa bazowe nie będą prezentowane osobom badanym, a posłużą jedynie do obliczenia wskaźnika BAS.
         form method='post' action='/designer/bas/plan'
           legend: h3
-            ' Słowa bazowe
-            small Każde słowo powinno być zapisane w osobnej linii.
+            ' Słowa bazowe i skojarzone
+          .alert.alert-info
+            ' W każdej linii powinno znaleźć się tylko jedno słowo. Słowa bazowe powinny rozpoczynać się od znaku gwiazdki (*). Skojarzone z nimi słowa powinny występować w liniach następujących po słowie bazowym.
           fieldset.text-center
-            textarea rows='15' name='base_words'
-              = @base_words
+            textarea rows='15' name='words'
+              = @words
           fieldset.text-center
             button.btn.btn-primary.btn-large type='submit' Zapisz
           javascript:
             $(function() {
               var updateSaveButtonLabel = function() {
                   var lines = $(this).val().split("\n");
-                  var lines_num = lines.length;
-                  if(lines[lines.length-1] === '')
-                    lines_num -= 1;
-                  $(this).parents('form').find('button[type="submit"]').text('Zapisz (' + lines_num + ' słów)')
+                  var base_words_num = 0;
+                  var assoc_words_num = 0;
+                  for(var i = 0; i < lines.length; ++i) {
+                    if(lines[i].charAt(0) === '*') {
+                      base_words_num += 1;
+                    } else if(lines[i] !== '') {
+                      assoc_words_num += 1;
+                    }
+                  }
+                  $(this).parents('form').find('button[type="submit"]').text('Zapisz (' + base_words_num + ' słów bazowych i ' + assoc_words_num + ' skojarzonych)');
                 }
-              $('textarea[name="base_words"]').keyup(updateSaveButtonLabel).trigger('keyup');
+              $('textarea[name="words"]').keyup(updateSaveButtonLabel).trigger('keyup');
             });
       #publish-pane.tab-pane
         == slim :_designer_publish

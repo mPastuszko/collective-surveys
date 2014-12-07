@@ -5,7 +5,7 @@
     '  do każdego z podanych wyrazów. Ważne, by dopisane słowo było jednowyrazowe. Unikaj nazw własnych, imion i zaimków zwrotnych („się”).
   .vspace2
   form.questions.form-horizontal method='post'
-    - @data[:base_words].each do |word|
+    - @data[:words].each do |word|
       fieldset.control-group
         label.control-label: strong= word.strip + ':'
         .controls

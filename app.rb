@@ -233,8 +233,10 @@ end
 get %r{/designer/(synonyms|bas|figures)} do |m|
   @module = m.to_sym
   case m
-  when 'synonyms', 'bas'
+  when 'synonyms'
     @base_words = db.get "#{m}:base_words"
+  when 'bas'
+    @words = db.get "#{m}:words"
   when 'figures'
     @figure_sets = figure_sets
   end
@@ -250,9 +252,14 @@ get '/figure/:id/:filename' do |id, filename|
   send_file figure_path(id, filename)
 end
 
-post %r{/designer/(synonyms|bas)/plan} do |m|
-  db.set "#{m}:base_words", params[:base_words]
-  redirect to("/designer/#{m}#plan")
+post '/designer/synonyms/plan' do
+  db.set "synonyms:base_words", params[:base_words]
+  redirect to("/designer/synonyms#plan")
+end
+
+post '/designer/bas/plan' do
+  db.set "bas:words", params[:words]
+  redirect to("/designer/bas#plan")
 end
 
 post '/designer/figures/plan' do
@@ -324,13 +331,31 @@ def create_survey(kind, surveyer_name, instructions, base_data = nil)
   db.set "survey:#{survey_id}:kind", kind
   db.set "survey:#{survey_id}:instructions", instructions
   case kind
-  when 'synonyms', 'bas'
+  when 'synonyms'
     base_words = base_data || db.get("#{kind}:base_words")
       .lines
       .to_a
       .map(&:chomp)
       .reject{ |e| e == '' }
     db.set "survey:#{survey_id}:base_words", base_words.to_json
+  when 'bas'
+    words = base_data || db.get("#{kind}:words")
+      .lines
+      .to_a
+      .map(&:chomp)
+      .map(&:strip)
+      .reject{ |e| e == '' }
+      .inject({:last_base_word => nil}) { |memo, word|
+        if word.start_with?('*')
+          memo[:last_base_word] = word[1..-1].strip
+          memo[memo[:last_base_word]] = []
+        elsif not word.empty? and not memo[:last_base_word].nil?
+          memo[memo[:last_base_word]] << word
+        end
+        memo
+      }
+    words.delete(:last_base_word)
+    db.set "survey:#{survey_id}:words", words.to_json
   when 'figures'
     db.sadd "survey:#{survey_id}:figure_sets", db.smembers("#{kind}:figure_sets")
   end
