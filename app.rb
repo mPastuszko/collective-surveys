@@ -367,8 +367,10 @@ def survey_data(survey_id)
   data = {}
   kind = db.get "survey:#{survey_id}:kind"
   case kind
-  when 'synonyms', 'bas'
+  when 'synonyms'
     data[:base_words] = JSON.load(db.get("survey:#{survey_id}:base_words"))
+  when 'bas'
+    data[:words] = JSON.load(db.get("survey:#{survey_id}:words"))
   when 'figures'
     data[:figure_sets] = figure_sets("survey:#{survey_id}:figure_sets")
   end
