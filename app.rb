@@ -166,9 +166,11 @@ get %r{/designer/(synonyms|bas|figures)/results-part} do |m|
   display_filter = params[:display]
   @answers = answers(m, display_filter)
   case m
-  when 'synonyms', 'bas'
+  when 'synonyms'
     subset = :finished
     @results = sort_word_results(word_results(m, @answers[subset]), params[:sort] ||= 'alpha')
+  when 'bas'
+    subset = :finished
   when 'figures'
     subset = :all
     @results = figure_results(@answers[subset])
@@ -185,8 +187,10 @@ get %r{/designer/(synonyms|bas|figures)/results-part} do |m|
     }
   @genders[:all] = @genders.values.inject(:+)
   results_part = case m
-    when 'synonyms', 'bas'
+    when 'synonyms'
       'words'
+    when 'bas'
+      'bas'
     when 'figures'
       'figures'
     end
