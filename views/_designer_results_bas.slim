@@ -84,133 +84,112 @@
     .lead.text-center w wieku od #{@ages.min} do #{@ages.max} lat (średnio #{@avg_age})
   #answers
     h2
-      ' Wyniki szczegółowe (w budowie)
-    / h2
-    /   ' Wyniki
-    /   .btn-group.pull-right
-    /     a.download.btn href="/designer/#{@module}/results-finished.csv"
-    /       i.icon-download-alt
-    /       '  Pobierz
-    /     a.btn.dropdown-toggle data-toggle='dropdown'
-    /       span.caret
-    /     ul.dropdown-menu
-    /       li: a.download href="/designer/#{@module}/results-finished.csv"
-    /         i.icon-ok
-    /         '  Ukończone
-    /       li: a.download href="/designer/#{@module}/results-all.csv"
-    /         i.icon-align-justify
-    /         '  Wszystkie
-    / .well.well-small
-    /   ' Sortuj:
-    /   a.btn.btn-link href=url("/designer/#{@module}/#results") alfabetycznie
-    /   a.btn.btn-link href=url("/designer/#{@module}/?sort=standard_deviation#results") wg odch. std.
-    /   a.btn.btn-link href=url("/designer/#{@module}/?sort=skewness#results") wg skośności
-    /   a.btn.btn-link href=url("/designer/#{@module}/?sort=kurtosis#results") wg kurtozy
-    /   .clearfix
-    /     em.muted Statystyki liczone są dla 6 najczęściej występujących słów w każdym zestawie.
-    / dl.dl-horizontal.results
-    /   - @results.each do |word_set|
-    /     .clearfix
-    /       dt
-    /         .base-word id="results-#{word_set[:base_word]}"= word_set[:base_word]
-    /         .statistics: strong Dla pierwszych 6 słów:
-    /         .statistics Odch. std.: #{word_set[:statistics_first_6][:standard_deviation].round(2)}
-    /         .statistics Skośność: #{word_set[:statistics_first_6][:skewness].round(2)}
-    /         .statistics Kurtoza: #{word_set[:statistics_first_6][:kurtosis].round(2)}
-    /         .statistics: strong Dla całego zestawu:
-    /         .statistics Odch. std.: #{word_set[:statistics][:standard_deviation].round(2)}
-    /         .statistics Skośność: #{word_set[:statistics][:skewness].round(2)}
-    /         .statistics Kurtoza: #{word_set[:statistics][:kurtosis].round(2)}
-    /         .statistics: strong Podobne rozkłady:
-    /         .statistics
-    /           ol
-    /             - word_set[:similar_distributions].each do |word, diff|
-    /               li: a href="#results-#{word}"= word
-    /       dd: ul.unstyled
-    /         - fas = word_set[:fas].dup
-    /         - word_set[:histogram].each do |word|
-    /           li
-    /             span.badge class=badge_for_frequency(word[:frequency]) = word[:frequency]
-    /             '
-    /             label.checkbox.word class=(word[:disabled] ? 'word-disabled' : '')
-    /               - if word[:merged_words]
-    /                 - tooltip_text = ([word[:word]] + word[:merged_words]).join(', ')
-    /                 strong data-toggle="tooltip" title=tooltip_text = word[:word]
-    /               - else
-    /                 = word[:word]
-    /                 input.select-word type='checkbox' name="merge[#{word_set[:base_word]}][#{word[:word]}]"
-    /               .actions.btn-group  
-    /                 button.btn.btn-mini.dropdown-toggle data-toggle="dropdown" href="#"
-    /                   i.icon-cog
-    /                   span.caret
-    /                 ul.dropdown-menu
-    /                   - if word[:merged_words]
-    /                     li: a.split-words href='#' data-word=word[:word] data-base_word=word_set[:base_word] Rozdziel słowa
-    /                   - else
-    /                     li: a.merge-words href='#' Połącz zaznaczone słowa
-    /                   li.divider
-    /                   - if word[:disabled]
-    /                     li: a.enable-word href='#' data-word=word[:word] data-base_word=word_set[:base_word] Uwzględniaj słowo
-    /                   - else
-    /                     li: a.disable-word href='#' data-word=word[:word] data-base_word=word_set[:base_word] Nie uwzględniaj słowa
-    /             - unless fas.empty? or word[:disabled]
-    /               span.fas
-    /                 span.muted= "FAS: "
-    /                 = fas.shift.round(6)
-    / javascript:
-    /   function findWordActionsButton(action) {
-    /     return action.parents('.actions').find('button');
-    /   }
-    /   $('a.merge-words').click(function(e) {
-    /     e.preventDefault();
-    /     var data = $('input.select-word:checked').serialize();
-    /     var button = findWordActionsButton($(e.target));
-    /     if(data) {
-    /       putLoaderIn(button.get());
-    /       button.prop('disabled', true);
-    /       $.post("/designer/#{@module}/merge-words", data, function() {
-    /         reload_results(e);
-    /         $(window).off('beforeunload');
-    /       });
-    /     }
-    /   });
-    /   $('a.split-words').click(function(e) {
-    /     e.preventDefault();
-    /     var action = $(e.target);
-    /     var button = findWordActionsButton(action);
-    /     var data = {
-    /       "word": action.attr('data-word'),
-    /       "base_word": action.attr('data-base_word')
-    /     };
-    /     putLoaderIn(button.get());
-    /     button.prop('disabled', true);
-    /     $.post("/designer/#{@module}/split-words", data, function() {
-    /       reload_results(e);
-    /       $(window).off('beforeunload');
-    /     });
-    /   });
-    /   $('input.select-word').click(function() {
-    /     $(window).on('beforeunload', function() {
-    /       return "Zaznaczyłeś słowa, ale nie zatwierdziłeś zmian poprzez kliknięcie przycisku 'Połącz zaznaczone słowa'.";
-    /     });
-    /   });
-    /   $('a.enable-word, a.disable-word').click(function(e) {
-    /     e.preventDefault();
-    /     var action = $(e.target);
-    /     var button = findWordActionsButton(action);
-    /     var word = action.parents('.word')
-    /     var data = {
-    /       "word": action.attr('data-word'),
-    /       "base_word": action.attr('data-base_word'),
-    /       "disable": ! word.hasClass('word-disabled')
-    /     };
-    /     if(data) {
-    /       putLoaderIn(button.get());
-    /       button.prop('disabled', true);
-    /       $.post("/designer/#{@module}/disable-enable-word", data, function() {
-    /         reload_results(e);
-    /         $(window).off('beforeunload');
-    /       });
-    /     }
-    /   });
-    /   $('[data-toggle="tooltip"]').tooltip();
+      ' Wyniki
+      / .btn-group.pull-right
+      /   a.download.btn href="/designer/#{@module}/results-finished.csv"
+      /     i.icon-download-alt
+      /     '  Pobierz
+      /   a.btn.dropdown-toggle data-toggle='dropdown'
+      /     span.caret
+      /   ul.dropdown-menu
+      /     li: a.download href="/designer/#{@module}/results-finished.csv"
+      /       i.icon-ok
+      /       '  Ukończone
+      /     li: a.download href="/designer/#{@module}/results-all.csv"
+      /       i.icon-align-justify
+      /       '  Wszystkie
+    dl.dl-horizontal.results
+      - @results.each do |word_set|
+        - original_base_word, base_word = word_set[:base_word].split('|')
+        .clearfix
+          dt
+            .base-word id="results-#{word_set[:base_word]}"= base_word
+            .base-word.muted= original_base_word
+          dd: ul.unstyled
+            - fas = word_set[:fas].dup
+            - word_set[:histogram].each do |word|
+              li
+                span.badge class=badge_for_frequency(word[:frequency]) = word[:frequency]
+                '
+                label.checkbox.word class=(word[:disabled] ? 'word-disabled' : '')
+                  - if word[:merged_words]
+                    - tooltip_text = ([word[:word]] + word[:merged_words]).join(', ')
+                    strong data-toggle="tooltip" title=tooltip_text = word[:word]
+                  - else
+                    = word[:word]
+                    input.select-word type='checkbox' name="merge[#{word_set[:base_word]}][#{word[:word]}]"
+                  .actions.btn-group  
+                    button.btn.btn-mini.dropdown-toggle data-toggle="dropdown" href="#"
+                      i.icon-cog
+                      span.caret
+                    ul.dropdown-menu
+                      - if word[:merged_words]
+                        li: a.split-words href='#' data-word=word[:word] data-base_word=word_set[:base_word] Rozdziel słowa
+                      - else
+                        li: a.merge-words href='#' Połącz zaznaczone słowa
+                      li.divider
+                      - if word[:disabled]
+                        li: a.enable-word href='#' data-word=word[:word] data-base_word=word_set[:base_word] Uwzględniaj słowo
+                      - else
+                        li: a.disable-word href='#' data-word=word[:word] data-base_word=word_set[:base_word] Nie uwzględniaj słowa
+                - unless fas.empty? or word[:disabled]
+                  span.fas
+                    span.muted= "BAS: "
+                    = fas.shift.round(6)
+    javascript:
+      function findWordActionsButton(action) {
+        return action.parents('.actions').find('button');
+      }
+      $('a.merge-words').click(function(e) {
+        e.preventDefault();
+        var data = $('input.select-word:checked').serialize();
+        var button = findWordActionsButton($(e.target));
+        if(data) {
+          putLoaderIn(button.get());
+          button.prop('disabled', true);
+          $.post("/designer/#{@module}/merge-words", data, function() {
+            reload_results(e);
+            $(window).off('beforeunload');
+          });
+        }
+      });
+      $('a.split-words').click(function(e) {
+        e.preventDefault();
+        var action = $(e.target);
+        var button = findWordActionsButton(action);
+        var data = {
+          "word": action.attr('data-word'),
+          "base_word": action.attr('data-base_word')
+        };
+        putLoaderIn(button.get());
+        button.prop('disabled', true);
+        $.post("/designer/#{@module}/split-words", data, function() {
+          reload_results(e);
+          $(window).off('beforeunload');
+        });
+      });
+      $('input.select-word').click(function() {
+        $(window).on('beforeunload', function() {
+          return "Zaznaczyłeś słowa, ale nie zatwierdziłeś zmian poprzez kliknięcie przycisku 'Połącz zaznaczone słowa'.";
+        });
+      });
+      $('a.enable-word, a.disable-word').click(function(e) {
+        e.preventDefault();
+        var action = $(e.target);
+        var button = findWordActionsButton(action);
+        var word = action.parents('.word')
+        var data = {
+          "word": action.attr('data-word'),
+          "base_word": action.attr('data-base_word'),
+          "disable": ! word.hasClass('word-disabled')
+        };
+        if(data) {
+          putLoaderIn(button.get());
+          button.prop('disabled', true);
+          $.post("/designer/#{@module}/disable-enable-word", data, function() {
+            reload_results(e);
+            $(window).off('beforeunload');
+          });
+        }
+      });
+      $('[data-toggle="tooltip"]').tooltip();

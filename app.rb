@@ -171,6 +171,7 @@ get %r{/designer/(synonyms|bas|figures)/results-part} do |m|
     @results = sort_word_results(word_results(m, @answers[subset]), params[:sort] ||= 'alpha')
   when 'bas'
     subset = :finished
+    @results = word_results(m, @answers[subset])
   when 'figures'
     subset = :all
     @results = figure_results(@answers[subset])
@@ -425,12 +426,19 @@ def answers(kind, display_filter = nil)
               when 'synonyms'
                 tmp = db.get("survey:#{survey}:base_words") and JSON.load(tmp).map(&:strip)
               when 'bas'
-                tmp = db.get("survey:#{survey}:words") and JSON.load(tmp).map(&:strip)
+                tmp = db.get("survey:#{survey}:words") and JSON.load(tmp).map(&:strip).sort
               when 'figures'
                 db.smembers("survey:#{survey}:figure_sets")
               end),
               answer_raw: answer_raw,
-              answer: answer_raw && JSON.load(answer_raw)
+              answer: answer_raw && (case kind
+              when 'synonyms'
+                JSON.load(answer_raw)
+              when 'bas'
+                JSON.load(answer_raw).sort {|a, b| a.first <=> b.first}.map(&:last)
+              when 'figures'
+                JSON.load(answer_raw)
+              end)
             }
           }
       else
@@ -509,11 +517,14 @@ def word_results(kind, answers)
     end
 
   # Add similar histograms information
-  histograms_difference_matrix = WordProcessor::histograms_difference_matrix(results, 6)
-  results.each do |word_set|
-    word = word_set[:base_word]
-    word_set[:similar_distributions] = WordProcessor::similar_distributions(word, histograms_difference_matrix, 30)
+  if kind == :synonyms
+    histograms_difference_matrix = WordProcessor::histograms_difference_matrix(results, 6)
+    results.each do |word_set|
+      word = word_set[:base_word]
+      word_set[:similar_distributions] = WordProcessor::similar_distributions(word, histograms_difference_matrix, 30)
+    end
   end
+
   results
 end
 
