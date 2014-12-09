@@ -349,16 +349,14 @@ def create_survey(kind, surveyer_name, instructions, base_data = nil)
       .map(&:chomp)
       .map(&:strip)
       .reject{ |e| e == '' }
-      .inject({:last_base_word => nil}) { |memo, word|
+      .inject({:last_base_word => nil, :words => []}) { |memo, word|
         if word.start_with?('*')
           memo[:last_base_word] = word[1..-1].strip
-          memo[memo[:last_base_word]] = []
         elsif not word.empty? and not memo[:last_base_word].nil?
-          memo[memo[:last_base_word]] << word
+          memo[:words] << [memo[:last_base_word], word].join('|')
         end
         memo
-      }
-    words.delete(:last_base_word)
+      }[:words]
     db.set "survey:#{survey_id}:words", words.to_json
   when 'figures'
     db.sadd "survey:#{survey_id}:figure_sets", db.smembers("#{kind}:figure_sets")
@@ -424,8 +422,10 @@ def answers(kind, display_filter = nil)
               gender: db.get("answer:#{answer}:gender"),
               age: db.get("answer:#{answer}:age"),
               question: (case kind
-              when 'synonyms', 'bas'
+              when 'synonyms'
                 tmp = db.get("survey:#{survey}:base_words") and JSON.load(tmp).map(&:strip)
+              when 'bas'
+                tmp = db.get("survey:#{survey}:words") and JSON.load(tmp).map(&:strip)
               when 'figures'
                 db.smembers("survey:#{survey}:figure_sets")
               end),
